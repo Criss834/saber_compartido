@@ -3,25 +3,25 @@
 ## Backend
 
 ### Esquema y validación
-- [ ] Revisar la estructura real de `calificaciones` y `solicitudes_tutoria` (columnas, claves y constraints) y anotar cómo se llega de una calificación a su tutor y dónde está la puntuación. Si hace falta un cambio, crearlo en el siguiente script numerado de `database/` (el último es `006_catalogo_materias.sql`), ejecutarlo en Docker y regenerar el esquema con `prisma db pull` y `prisma generate`. Si no hace falta, dejar la conclusión anotada en el plan. (`database/`, `backend/prisma/schema.prisma`)
-- [ ] Crear el esquema Zod: `q` opcional recortado de hasta 80 caracteres, `materiaId` opcional entero positivo, `filtro` (`todos`, `calificacion`, `promedio`, por defecto `todos`) y el `id` del perfil como entero positivo. (`backend/src/modules/busqueda/busqueda.schema.js`)
-- [ ] Revisar cómo funciona `validar` y extenderlo (o crear una variante al lado) para validar `req.query` sin reasignarla, porque Express 5 no lo permite, dejando el resultado donde el controller lo lea. Los errores salen con el 400 de Zod existente. (`backend/src/shared/middlewares/validar.js`)
+- [x] Revisar la estructura real de `calificaciones` y `solicitudes_tutoria` (columnas, claves y constraints) y anotar cómo se llega de una calificación a su tutor y dónde está la puntuación. Si hace falta un cambio, crearlo en el siguiente script numerado de `database/` (el último es `006_catalogo_materias.sql`), ejecutarlo en Docker y regenerar el esquema con `prisma db pull` y `prisma generate`. Si no hace falta, dejar la conclusión anotada en el plan. (`database/`, `backend/prisma/schema.prisma`)
+- [x] Crear el esquema Zod: `q` opcional recortado de hasta 80 caracteres, `materiaId` opcional entero positivo, `filtro` (`todos`, `calificacion`, `promedio`, por defecto `todos`) y el `id` del perfil como entero positivo. (`backend/src/modules/busqueda/busqueda.schema.js`)
+- [x] Revisar cómo funciona `validar` y extenderlo (o crear una variante al lado) para validar `req.query` sin reasignarla, porque Express 5 no lo permite, dejando el resultado donde el controller lo lea. Los errores salen con el 400 de Zod existente. (`backend/src/shared/middlewares/validar.js`)
 
 ### Búsqueda
-- [ ] Crear en el repository la consulta de tutores: usuarios distintos del de la sesión con al menos una materia `aprobado`, devolviendo solo sus materias aprobadas con su promedio. (`backend/src/modules/busqueda/busqueda.repository.js`)
-- [ ] Añadir el filtro de texto por palabras: cada palabra debe coincidir con los nombres, los apellidos o el nombre de alguna materia aprobada, ignorando mayúsculas y tildes gracias a la colación de la BD. (`backend/src/modules/busqueda/busqueda.repository.js`)
-- [ ] Añadir el filtro por `materiaId`: solo tutores que tengan esa materia aprobada. (`backend/src/modules/busqueda/busqueda.repository.js`)
-- [ ] Crear la consulta agregada de calificaciones (promedio y cantidad) para una lista de ids de tutores, sin una consulta por tarjeta. (`backend/src/modules/busqueda/busqueda.repository.js`)
-- [ ] Obtener la descripción de la solicitud aprobada más reciente que tenga una. (`backend/src/modules/busqueda/busqueda.repository.js`)
-- [ ] Crear la consulta de materias con al menos un tutor aprobado, para el filtro. (`backend/src/modules/busqueda/busqueda.repository.js`)
-- [ ] Crear la consulta de un tutor por id con la misma regla (aprobado y distinto del usuario de la sesión), incluyendo su calificación. (`backend/src/modules/busqueda/busqueda.repository.js`)
-- [ ] Crear en el service la unión de tutores con sus calificaciones y el filtro `calificacion` (4.8 o más, que excluye a los tutores sin calificaciones) y `promedio` (4.5 o más, sobre la materia elegida o, sin materia, sobre cualquiera de sus materias). Las comparaciones se hacen en centésimas enteras, sin `float`. (`backend/src/modules/busqueda/busqueda.service.js`)
-- [ ] Ordenar por calificación descendente (los que no tienen, al final) y, a igualdad, por promedio en la materia, y limitar a 50. (`backend/src/modules/busqueda/busqueda.service.js`)
-- [ ] Componer la respuesta pública `{total, tutores}` con id, nombre completo, iniciales, calificación `{promedio, cantidad}`, descripción y materias `{id, nombre, promedio}`, sin correo, cédula, documentos ni estados de otras solicitudes. (`backend/src/modules/busqueda/busqueda.service.js`)
-- [ ] Crear el servicio del perfil, que responde 404 `TUTOR_NO_ENCONTRADO` de forma idéntica si el tutor no existe, no tiene materias aprobadas o es el propio usuario. (`backend/src/modules/busqueda/busqueda.service.js`)
-- [ ] Crear el controller y las rutas `GET /api/busqueda/tutores`, `GET /api/busqueda/materias` y `GET /api/busqueda/tutores/:id`, todas con `requerir-sesion`, `requerirRol("estudiante", "tutor")` (403 `ACCESO_DENEGADO` para el administrador) y los parámetros validados con Zod. (`backend/src/modules/busqueda/busqueda.controller.js`, `backend/src/modules/busqueda/busqueda.routes.js`)
-- [ ] Montar el router en la app como `/api/busqueda`. (`backend/src/app.js`)
-- [ ] Confirmar que ninguna respuesta ni log expone correo, cédula, certificados ni estados `pendiente` o `rechazado`. (`backend/src/modules/busqueda/`)
+- [x] Crear en el repository la consulta de tutores: usuarios distintos del de la sesión con al menos una materia `aprobado`, devolviendo solo sus materias aprobadas con su promedio. (`backend/src/modules/busqueda/busqueda.repository.js`)
+- [x] Añadir el filtro de texto por palabras: cada palabra debe coincidir con los nombres, los apellidos o el nombre de alguna materia aprobada, ignorando mayúsculas y tildes gracias a la colación de la BD. Los comodines `%`, `_` y `` se escapan, porque Prisma no lo hace en MySQL. (`backend/src/modules/busqueda/busqueda.repository.js`)
+- [x] Añadir el filtro por `materiaId`: solo tutores que tengan esa materia aprobada. (`backend/src/modules/busqueda/busqueda.repository.js`)
+- [x] Crear la consulta agregada de calificaciones (promedio y cantidad) para una lista de ids de tutores, sin una consulta por tarjeta. (`backend/src/modules/busqueda/busqueda.repository.js`)
+- [x] Obtener la descripción de la solicitud aprobada más reciente que tenga una. (`backend/src/modules/busqueda/busqueda.repository.js`)
+- [x] Crear la consulta de materias con al menos un tutor aprobado, para el filtro. (`backend/src/modules/busqueda/busqueda.repository.js`)
+- [x] Crear la consulta de un tutor por id con la misma regla (aprobado y distinto del usuario de la sesión), incluyendo su calificación. (`backend/src/modules/busqueda/busqueda.repository.js`)
+- [x] Crear en el service la unión de tutores con sus calificaciones y el filtro `calificacion` (4.8 o más, que excluye a los tutores sin calificaciones) y `promedio` (4.5 o más, sobre la materia elegida o, sin materia, sobre cualquiera de sus materias). Las comparaciones se hacen en centésimas enteras, sin `float`. (`backend/src/modules/busqueda/busqueda.service.js`)
+- [x] Ordenar por calificación descendente (los que no tienen, al final) y, a igualdad, por promedio en la materia, y limitar a 50. (`backend/src/modules/busqueda/busqueda.service.js`)
+- [x] Componer la respuesta pública `{total, tutores}` con id, nombre completo, iniciales, calificación `{promedio, cantidad}`, descripción y materias `{id, nombre, promedio}`, sin correo, cédula, documentos ni estados de otras solicitudes. (`backend/src/modules/busqueda/busqueda.service.js`)
+- [x] Crear el servicio del perfil, que responde 404 `TUTOR_NO_ENCONTRADO` de forma idéntica si el tutor no existe, no tiene materias aprobadas o es el propio usuario. (`backend/src/modules/busqueda/busqueda.service.js`)
+- [x] Crear el controller y las rutas `GET /api/busqueda/tutores`, `GET /api/busqueda/materias` y `GET /api/busqueda/tutores/:id`, todas con `requerir-sesion`, `requerirRol("estudiante", "tutor")` (403 `ACCESO_DENEGADO` para el administrador) y los parámetros validados con Zod. (`backend/src/modules/busqueda/busqueda.controller.js`, `backend/src/modules/busqueda/busqueda.routes.js`)
+- [x] Montar el router en la app como `/api/busqueda`. (`backend/src/app.js`)
+- [x] Confirmar que ninguna respuesta ni log expone correo, cédula, certificados ni estados `pendiente` o `rechazado`. (`backend/src/modules/busqueda/`)
 
 ## Frontend
 

@@ -14,6 +14,12 @@ El perfil público es la última parte de la feature y es independiente: si el p
 
 1. **Revisar el esquema.** Comprobar la estructura real de `calificaciones` y `solicitudes_tutoria` para decidir cómo se llega de una calificación a su tutor (probablemente por la solicitud) y qué columna guarda la puntuación. No se espera cambiar el esquema; si hiciera falta un índice para la consulta de calificaciones, va en un script numerado de `database/` y se regenera `schema.prisma` con `prisma db pull`, sin migraciones.
 
+   **Conclusión (revisado):** no hace falta cambiar el esquema.
+   - `calificaciones` tiene `tutor_id` directo (FK a `usuarios`, con índice `fk_cal_tutor`), así que el promedio y la cantidad salen con un `groupBy` por `tutorId`, sin pasar por `solicitudes_tutoria`. La puntuación está en `calificacion` (`TINYINT UNSIGNED`).
+   - `solicitud_tutoria_id` y `sesion_grupal_id` son opcionales y cada uno es único por estudiante (`uq_calificacion_solicitud` y `uq_calificacion_sesion`). Ambos tipos de calificación cuentan para el tutor.
+   - La BD no tiene un `CHECK` del rango 1–5. Eso se valida en el service de CAL-TUT-001; hoy no hay filas en `calificaciones` ni en `solicitudes_tutoria`.
+   - La colación real de `usuarios.nombres`, `usuarios.apellidos` y `materias.nombre` es `utf8mb4_unicode_ci`, no `0900_ai_ci`. Ignora igualmente mayúsculas y tildes, comprobado con `contains` ("algoritmica" → "Algorítmica…", "ALGEBRA" → "Álgebra…").
+
 2. **Validación de parámetros.** `backend/src/modules/busqueda/busqueda.schema.js` con Zod 4:
    - `q`: opcional, recortado, hasta 80 caracteres.
    - `materiaId`: opcional, entero positivo.
@@ -24,7 +30,7 @@ El perfil público es la última parte de la feature y es independiente: si el p
 
 3. **Repository.** `busqueda.repository.js` encapsula Prisma:
    - Buscar tutores: usuarios, distintos del usuario de la sesión, con al menos una materia `aprobado`, devolviendo solo sus materias aprobadas con su promedio.
-   - Texto: se divide en palabras y cada una debe coincidir con los nombres, los apellidos o el nombre de alguna materia aprobada. Con la colación `utf8mb4_0900_ai_ci` la coincidencia ya ignora mayúsculas y tildes.
+   - Texto: se divide en palabras y cada una debe coincidir con los nombres, los apellidos o el nombre de alguna materia aprobada. Con la colación `utf8mb4_unicode_ci` de esas columnas la coincidencia ya ignora mayúsculas y tildes.
    - Filtro por `materiaId`: solo tutores que tengan esa materia aprobada.
    - Calificación: una segunda consulta agregada por los ids encontrados, que devuelve promedio y cantidad por tutor, para evitar una consulta por tarjeta.
    - Descripción: la de la solicitud aprobada más reciente que la tenga.
@@ -72,7 +78,7 @@ El perfil público es la última parte de la feature y es independiente: si el p
 - **Sin cambios de esquema.** Todo sale de tablas existentes, lo que reduce el riesgo en un plazo corto.
 - **Filtro, orden y tope en el service.** Es más simple y legible que SQL con agregados, y suficiente para el volumen del MVP.
 - **Búsqueda por palabras.** Cada palabra del texto debe coincidir con algún campo, de modo que "miguel cardenas" encuentra a un tutor aunque nombre y apellido estén en columnas distintas.
-- **Colación `ai_ci` de la BD para ignorar tildes y mayúsculas**, en vez de normalizar el texto en código.
+- **Colación de la BD (`utf8mb4_unicode_ci`, insensible a tildes y mayúsculas) para ignorar tildes y mayúsculas**, en vez de normalizar el texto en código.
 - **Calificaciones en una consulta agregada**, no por tarjeta.
 - **Endpoint propio de materias para el filtro**, para que solo aparezcan las que tienen tutores y no el catálogo completo de `GET /api/materias`.
 - **Estado de la búsqueda en la URL.** Recargar o compartir el enlace conserva la búsqueda y evita estado duplicado.
