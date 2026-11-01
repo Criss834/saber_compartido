@@ -5,6 +5,7 @@ import {
   guardarEnvio,
   listarSolicitudesDelTutor,
 } from "./tutores.repository.js";
+import { procesarArchivo } from "./verificacion/verificacion.service.js";
 
 const verificarMaterias = async (materiaIds) => {
   const materias = await buscarMaterias(materiaIds);
@@ -54,7 +55,15 @@ export const registrarSolicitud = async (tutorId, datos, archivo) => {
     solicitudPreviaId: previas.get(materia.materiaId) ?? null,
   }));
 
-  return guardarEnvio(tutorId, { ...datos, materias: materiasConPrevia }, archivo);
+  const resultado = await guardarEnvio(
+    tutorId,
+    { ...datos, materias: materiasConPrevia },
+    archivo,
+  );
+
+  void procesarArchivo(resultado.archivoId);
+
+  return resultado;
 };
 
 export const listarSolicitudes = async (tutorId) => {

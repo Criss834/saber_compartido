@@ -57,7 +57,7 @@ export const guardarEnvio = async (tutorId, datos, archivo) => {
       });
     }
 
-    return { solicitudes: datos.materias.length };
+    return { solicitudes: datos.materias.length, archivoId: archivoGuardado.id };
   });
 };
 
