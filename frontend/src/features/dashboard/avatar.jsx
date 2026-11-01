@@ -26,10 +26,11 @@ export const colorAvatarDe = (nombre = "") => {
 export const Avatar = ({
   nombre,
   size = "size-[37px]",
+  redondeo = "rounded-full",
   className = "",
 }) => (
   <span
-    className={`inline-grid ${size} flex-none place-items-center rounded-full text-[11px] font-extrabold ${colorAvatarDe(nombre)} ${className}`}
+    className={`inline-grid ${size} flex-none place-items-center ${redondeo} text-[11px] font-extrabold ${colorAvatarDe(nombre)} ${className}`}
     aria-hidden="true"
   >
     {inicialesDe(nombre)}

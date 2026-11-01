@@ -12,6 +12,7 @@ const GRUPOS_ESTUDIANTE = [
         ruta: "/dashboard/buscar-tutores",
         etiqueta: "Buscar tutores",
         icono: "buscar",
+        implementado: true,
       },
       {
         ruta: "/dashboard/mis-tutorias",
@@ -86,6 +87,7 @@ const TODOS_LOS_ENLACES = [...GRUPOS_ESTUDIANTE, ...GRUPOS_ADMINISTRADOR].flatMa
 );
 
 export const etiquetaDeRuta = (ruta) => {
+  if (ruta.startsWith("/dashboard/buscar-tutores/")) return "Perfil del tutor";
   const coincidencia = TODOS_LOS_ENLACES.find((enlace) => enlace.ruta === ruta);
   if (coincidencia) return coincidencia.etiqueta;
 

@@ -58,6 +58,19 @@ export const Topbar = ({ menuAbierto, onAlternarMenu }) => {
     .filter(Boolean)
     .join(" ");
 
+  // Lleva a la pantalla de búsqueda con el texto ya aplicado en la URL.
+  const [textoBusqueda, setTextoBusqueda] = useState("");
+  const buscarTutor = (evento) => {
+    evento.preventDefault();
+    const texto = textoBusqueda.trim();
+    navigate(
+      texto
+        ? `/dashboard/buscar-tutores?q=${encodeURIComponent(texto)}`
+        : "/dashboard/buscar-tutores",
+    );
+    setTextoBusqueda("");
+  };
+
   return (
     <>
       <header className="sticky top-0 z-20 flex h-[76px] items-center justify-between border-b border-[#eeeaf5] bg-white/[0.94] px-[35px] backdrop-blur-[12px] max-[900px]:gap-[14px] max-[900px]:px-5 max-[650px]:h-[65px] max-[650px]:px-[14px]">
@@ -74,6 +87,32 @@ export const Topbar = ({ menuAbierto, onAlternarMenu }) => {
         </div>
 
         <div className="flex items-center gap-[17px] max-[900px]:gap-2.5 max-[650px]:gap-[7px]">
+          {usuario?.rol !== "administrador" && (
+            <form
+              role="search"
+              aria-label="Buscar tutores"
+              onSubmit={buscarTutor}
+              className="flex h-[38px] w-[min(285px,25vw)] min-w-[170px] items-center gap-[9px] rounded-[10px] border border-[#ece8f3] bg-[#fbfaff] px-2.5 text-[#a59cb7] focus-within:border-primary max-[650px]:hidden"
+            >
+              <svg {...svgBase} className="h-4 w-4 flex-none">
+                <circle cx="11" cy="11" r="7" />
+                <path d="m20.5 20.5-4-4" />
+              </svg>
+              <label className="sr-only" htmlFor="buscador-superior">
+                Buscar tutor o materia
+              </label>
+              <input
+                id="buscador-superior"
+                type="search"
+                value={textoBusqueda}
+                maxLength={80}
+                onChange={(evento) => setTextoBusqueda(evento.target.value)}
+                placeholder="Buscar tutor, materia…"
+                className="w-full min-w-0 border-0 bg-transparent text-[11px] text-text outline-none"
+              />
+            </form>
+          )}
+
           <button
             type="button"
             aria-label="Ver notificaciones"

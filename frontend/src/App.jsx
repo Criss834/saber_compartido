@@ -4,6 +4,8 @@ import { Verificacion } from "./pages/Verificacion/Verificacion.jsx";
 import { Login } from "./pages/Login/Login.jsx";
 import { Resumen } from "./pages/Dashboard/Resumen.jsx";
 import { SerTutor } from "./pages/Dashboard/SerTutor.jsx";
+import { BuscarTutores } from "./pages/Dashboard/BuscarTutores.jsx";
+import { PerfilTutor } from "./pages/Dashboard/PerfilTutor.jsx";
 import { Proximamente } from "./pages/Dashboard/Proximamente.jsx";
 import { Verificaciones } from "./pages/Dashboard/Verificaciones.jsx";
 import { VerificacionDetalle } from "./pages/Dashboard/VerificacionDetalle.jsx";
@@ -52,6 +54,8 @@ const App = () => {
                 element={<RutaPorRol rolesPermitidos={ROLES_ESTUDIANTE} />}
               >
                 <Route path="ser-tutor" element={<SerTutor />} />
+                <Route path="buscar-tutores" element={<BuscarTutores />} />
+                <Route path="buscar-tutores/:id" element={<PerfilTutor />} />
                 {PANTALLAS_PLACEHOLDER.filter(
                   (enlace) => !enlace.todosLosRoles,
                 ).map(rutaPlaceholder)}
