@@ -1,9 +1,10 @@
-import { extraerDatosCertificado } from "./proveedor-ia.js";
+import { extraerDatosCertificado, iaPausadaHasta } from "./proveedor-ia.js";
 import { generarAlertas, materiaCoincide } from "./comparar.js";
 import { errorNegocio } from "../../../shared/errores/error-negocio.js";
 import { prisma } from "../../../shared/prisma/client.js";
 import {
   actualizarResultadoIA,
+  buscarArchivosPendientes,
   buscarCertificadoDeSolicitud,
   buscarSolicitudesPorArchivo,
   buscarVerificacion,
@@ -56,7 +57,7 @@ export const obtenerVerificacion = async (solicitudId) => {
 
   const cuenta =
     solicitud.usuarios_tutores_materias_tutor_idTousuarios;
-  const documento = solicitud.documentos_verificacion ?? null;
+  const documento = solicitud.documentos_verificacion?.[0] ?? null;
 
   return {
     id: solicitud.id,
@@ -71,6 +72,9 @@ export const obtenerVerificacion = async (solicitudId) => {
     creadoEn: solicitud.creadoEn,
     descripcion: solicitud.descripcion,
     indicador: indicadorDe(documento),
+    procesando: Boolean(
+      documento?.archivoId && enProceso.has(documento.archivoId),
+    ),
     extraido: documento
       ? {
           nombre: documento.iaNombreExtraido,
@@ -162,12 +166,20 @@ export const reprocesarVerificacion = async (solicitudId) => {
     );
   }
 
-  const documento = solicitud.documentos_verificacion;
+  const documento = solicitud.documentos_verificacion?.[0] ?? null;
   if (!documento?.archivoId) {
     throw errorNegocio(
       "CERTIFICADO_NO_ENCONTRADO",
       "La solicitud no tiene certificado asociado",
       404,
+    );
+  }
+
+  if (enProceso.has(documento.archivoId)) {
+    throw errorNegocio(
+      "REPROCESO_EN_CURSO",
+      "La IA ya está procesando este certificado",
+      409,
     );
   }
 
@@ -234,6 +246,30 @@ export const procesarArchivo = async (archivoId) => {
   } finally {
     enProceso.delete(archivoId);
   }
+};
+
+const VENTANA_PENDIENTES_MS = 24 * 60 * 60 * 1000;
+const INTERVALO_BARRIDO_MS = 2 * 60 * 1000;
+
+export const procesarPendientes = async () => {
+  if (iaPausadaHasta()) return;
+  const desde = new Date(Date.now() - VENTANA_PENDIENTES_MS);
+  const archivoIds = await buscarArchivosPendientes(desde);
+  for (const archivoId of archivoIds) {
+    await procesarArchivo(archivoId);
+  }
+};
+
+export const iniciarBarridoPendientes = () => {
+  const barrer = () => {
+    procesarPendientes().catch((error) => {
+      console.error(`Barrido de pendientes falló: ${error.message}`);
+    });
+  };
+
+  barrer();
+  const intervalo = setInterval(barrer, INTERVALO_BARRIDO_MS);
+  return () => clearInterval(intervalo);
 };
 
 export default procesarArchivo;

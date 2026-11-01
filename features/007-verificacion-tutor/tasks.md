@@ -33,42 +33,58 @@
 
 ## Frontend
 
-- [ ] Leer la sección de administrador del prototipo `Saber-Compartido-Dashboard` (lista, tarjeta de revisión, textos, estados y colores) y mapearla a los tokens de `index.css`. (`~/Escritorio/Saber-Compartido-Dashboard/`)
-- [ ] Crear el cliente HTTP de verificaciones siguiendo `api-resumen.js`: lista, detalle, resolver y reprocesar, con el manejo del 401 y del 403. (`frontend/src/features/verificacion/api-verificacion.js`)
-- [ ] Añadir la sección "Administración" con la entrada "Verificaciones" y un campo `soloRol`, y hacer que el sidebar filtre las entradas por el rol del usuario. (`frontend/src/features/dashboard/navegacion.js`, `frontend/src/features/dashboard/sidebar.jsx`)
-- [ ] Crear `RutaPorRol`, que redirige a `/dashboard` si el rol no es el permitido, y envolver con él las rutas de administración. (`frontend/src/features/auth/ruta-por-rol.jsx`)
-- [ ] Crear el componente del indicador con los dos estados ("Pendiente de revisión", "Requiere revisión manual") reutilizando los pares de badges de `index.css`. (`frontend/src/features/verificacion/indicador-revision.jsx`)
-- [ ] Crear la lista de verificaciones con carga, error con "Reintentar" y vacío. (`frontend/src/pages/Dashboard/Verificaciones.jsx`)
-- [ ] Crear el detalle con lo declarado frente a lo extraído, las alertas, el enlace al certificado en una pestaña nueva, y los botones Aprobar, Rechazar y Reprocesar con confirmación, estados de carga y manejo del 409. (`frontend/src/pages/Dashboard/VerificacionDetalle.jsx`)
-- [ ] Registrar las rutas de lista y detalle dentro de `LayoutDashboard`. (`frontend/src/App.jsx`)
-- [ ] Verificar el diseño en móvil y escritorio y compararlo con el prototipo. (`frontend/src/pages/Dashboard/`)
+- [x] Leer la sección de administrador del prototipo `Saber-Compartido-Dashboard` (lista, tarjeta de revisión, textos, estados y colores) y mapearla a los tokens de `index.css`. (`~/Escritorio/Saber-Compartido-Dashboard/`) — mapeo: `verification-card` → `rounded-card border-[#eeeaf5] shadow-card`; "Pendiente de revisión" → par `status-pending`; "Requiere revisión manual" → par `status-danger`; `flag-list` ámbar → `status-pending` + borde `#ffedc0`; callout morado → `primary-light`/`#e9ddff`; callout éxito → `status-success`; `empty-state` → patrón existente con círculo `primary-light`; botones → `primary`/`secondary`/`danger`/`success`.
+- [x] Crear el cliente HTTP de verificaciones siguiendo `api-resumen.js`: lista, detalle, resolver y reprocesar, con el manejo del 401 y del 403. (`frontend/src/features/verificacion/api-verificacion.js`)
+- [x] Dar al administrador su propio sidebar, como en el prototipo: grupo "Administración" con "Resumen" y "Verificación de tutores" (`gruposDeRol`), un Resumen propio (`ResumenAdmin.jsx`) y las rutas del estudiante bloqueadas para el admin, salvo Mi perfil y Notificaciones. (`frontend/src/features/dashboard/navegacion.js`, `frontend/src/features/dashboard/sidebar.jsx`)
+- [x] Crear `RutaPorRol`, que redirige a `/dashboard` si el rol no es el permitido, y envolver con él las rutas de administración. (`frontend/src/features/auth/ruta-por-rol.jsx`)
+- [x] Crear el componente del indicador con los dos estados ("Pendiente de revisión", "Requiere revisión manual") reutilizando los pares de badges de `index.css`. (`frontend/src/features/verificacion/indicador-revision.jsx`)
+- [x] Crear la lista de verificaciones con carga, error con "Reintentar" y vacío. (`frontend/src/pages/Dashboard/Verificaciones.jsx`)
+- [x] Crear el detalle con lo declarado frente a lo extraído, las alertas, el enlace al certificado en una pestaña nueva, y los botones Aprobar, Rechazar y Reprocesar con confirmación, estados de carga y manejo del 409. (`frontend/src/pages/Dashboard/VerificacionDetalle.jsx`)
+- [x] Registrar las rutas de lista y detalle dentro de `LayoutDashboard`. (`frontend/src/App.jsx`)
+- [x] Verificar el diseño en móvil y escritorio y compararlo con el prototipo. (`frontend/src/pages/Dashboard/`)
 
 ## Pruebas / validación
 
-- [ ] Lint del backend: `npx oxlint src`. (`backend/`)
-- [ ] Lint del frontend: `npm run lint`. (`frontend/`)
-- [ ] Probar las funciones de `comparar.js` con casos de ejemplo en un script temporal (no se sube): tildes y mayúsculas, nombre en otro orden, nombre distinto, nota 4.7 frente a 4.70, nota menor que 4.00, estado distinto de APROBADO y materia ausente. (`backend/`)
-- [ ] Con curl (`127.0.0.1:3000`): sin sesión las rutas `/api/admin/*` devuelven 401, y con un usuario estudiante devuelven 403. (`backend/`)
-- [ ] Crear la cuenta de administrador ejecutando el script con las variables definidas solo en la sesión de PowerShell, sin guardarlas en archivos. (`backend/scripts/crear-admin.js`)
+- [x] Lint del backend: `npx oxlint src`. (`backend/`)
+ — 0 errores (solo warnings previos en `errorHandler.js` y `auth.controller.js`).
+- [x] Lint del frontend: `npm run lint`. (`frontend/`)
+ — 0 errores (solo warnings previos de fast refresh).
+- [x] Probar las funciones de `comparar.js` con casos de ejemplo en un script temporal (no se sube): tildes y mayúsculas, nombre en otro orden, nombre distinto, nota 4.7 frente a 4.70, nota menor que 4.00, estado distinto de APROBADO y materia ausente. (`backend/`)
+ — 18/18 casos pasan, incluidos 4.00 exacto, estado en minúsculas, nota nula, SIN_FIRMA, ILEGIBLE y NO_PROCESADO.
+- [x] Con curl (`127.0.0.1:3000`): sin sesión las rutas `/api/admin/*` devuelven 401, y con un usuario estudiante devuelven 403. (`backend/`)
+ — los 5 endpoints `/api/admin/*` responden 401 sin sesión y 403 a un estudiante.
+- [x] Crear la cuenta de administrador ejecutando el script con las variables definidas solo en la sesión de PowerShell, sin guardarlas en archivos. (`backend/scripts/crear-admin.js`)
+ — la cuenta existe (rol `administrador`, correo verificado); el script rechaza variables faltantes y correos fuera de `@amigo.edu.co` sin tocar la BD.
 - [ ] Registrar una solicitud de 2 materias (por ejemplo Estadística I y Bases de datos) con el certificado real y comprobar que la respuesta es inmediata y que luego las filas de `documentos_verificacion` tienen `ia_*` e `ia_procesado_en`, y que las alertas están vacías. (`backend/`)
+ — **Pendiente:** bloqueado por la cuota diaria de Gemini (429, plan gratuito: 20/día). Verificado: el registro responde 201 de inmediato (0,34 s). Las solicitudes previas de 1 materia (Bases de datos, Lenguajes de programación) sí quedaron procesadas con `ia_alertas` vacías.
 - [ ] Probar los casos de alerta: certificado de una cuenta con otro nombre (`NOMBRE_NO_COINCIDE`), materia solicitada que no está en el certificado como Cálculo diferencial (`MATERIA_AUSENTE`) y nota declarada distinta de la del certificado (`NOTA_DISTINTA`). (`backend/`)
+ — **Pendiente:** requiere Gemini (cuota agotada). La lógica de las tres alertas está cubierta en las pruebas de `comparar.js`.
 - [ ] Probar con una foto (JPG) del certificado impreso y con una imagen borrosa, y anotar qué lee bien y qué falla. (`backend/`)
+ — **Pendiente:** requiere Gemini y las fotos del certificado.
 - [ ] Quitar `GEMINI_API_KEY` y registrar una solicitud: el registro responde 201, la solicitud queda sin procesar y el administrador puede reprocesarla al restaurar la clave. (`backend/`)
-- [ ] Probar con una clave inválida y con un tiempo máximo muy bajo: la solicitud queda sin procesar y el log no incluye datos personales ni la clave. (`backend/`)
-- [ ] Como administrador: aprobar una materia cambia `estado`, `revisado_por`, `revisado_en` y el rol a `tutor`; rechazar no cambia el rol; resolver dos veces devuelve 409; un administrador aprobando no baja su rol. (`database/`)
-- [ ] Confirmar que `GET /api/auth/yo` del tutor aprobado devuelve `rol: tutor` en su siguiente carga. (`backend/`)
-- [ ] Comprobar que el endpoint del certificado devuelve el PDF con las cabeceras esperadas al administrador y 403 a un estudiante. (`backend/`)
-- [ ] En el navegador: el sidebar muestra "Verificaciones" solo al administrador, un estudiante que entra a la ruta es redirigido, el flujo completo de revisar y aprobar o rechazar, estados de carga y error, y móvil. (`frontend/`)
+ — **Pendiente:** verificado: el registro responde 201, la solicitud queda sin procesar, el log dice "GEMINI_API_KEY no configurada" y `reprocesar` responde 202 de inmediato. Falta confirmar que el reproceso con la clave restaurada llena `ia_*` (cuota agotada).
+- [x] Probar con una clave inválida y con un tiempo máximo muy bajo: la solicitud queda sin procesar y el log no incluye datos personales ni la clave. (`backend/`)
+ — clave inválida → 400 de Gemini; tiempo máximo de 1 ms → 3 intentos en unos 20 s. En ambos casos `ia_procesado_en` queda nulo y el log no incluye la clave, el nombre ni el correo.
+- [x] Como administrador: aprobar una materia cambia `estado`, `revisado_por`, `revisado_en` y el rol a `tutor`; rechazar no cambia el rol; resolver dos veces devuelve 409; un administrador aprobando no baja su rol. (`database/`)
+ — probado en vivo sobre la solicitud 2 y restaurado después: aprobar fija estado, revisor y fecha y cambia el rol a `tutor`; rechazar mantiene `estudiante`; resolver dos veces → 409; aprobar a alguien que ya es tutor no cambia su rol y el rol del admin sigue siendo `administrador`.
+- [x] Confirmar que `GET /api/auth/yo` del tutor aprobado devuelve `rol: tutor` en su siguiente carga. (`backend/`)
+ — devuelve `rol: tutor` justo después de aprobar.
+- [x] Comprobar que el endpoint del certificado devuelve el PDF con las cabeceras esperadas al administrador y 403 a un estudiante. (`backend/`)
+ — 200 `application/pdf`, `inline`, `private, no-store`, `nosniff`; 403 a un estudiante; el detalle no expone `contenido`.
+- [ ] En el navegador: el sidebar del administrador muestra solo "Resumen" y "Verificación de tutores", un estudiante que entra a la ruta es redirigido, un admin que entra a una ruta del estudiante vuelve a su Resumen, el flujo completo de revisar y aprobar o rechazar, estados de carga y error, y móvil. (`frontend/`)
+ — **Pendiente:** prueba manual. La sidebar se rediseñó para el admin ("Verificación de tutores" en un grupo propio) y las rutas del estudiante redirigen al admin.
 - [ ] Regresión: el registro de tutor (006), login, Google, logout y el Resumen siguen funcionando. (`frontend/`, `backend/`)
+ — **Pendiente:** backend verificado por curl (registro 006 con 201, `/yo`, `/dashboard/resumen`, `/materias`, login incorrecto → 401, Google → 302 a accounts.google.com, logout limpia la cookie). Falta el navegador: login real, flujo completo de Google y Resumen del estudiante.
 
 ## Cierre
 
-- [ ] Revisar el diff completo y confirmar que no hay `console.log`, claves, contraseñas ni certificados de prueba. (`./`)
-- [ ] Confirmar que `package.json` y el lock no tienen dependencias nuevas. (`backend/package.json`)
-- [ ] Hacer commit con un mensaje claro y `git push`. (`./`)
+- [x] Revisar el diff completo y confirmar que no hay `console.log`, claves, contraseñas ni certificados de prueba. (`./`)
+- [x] Confirmar que `package.json` y el lock no tienen dependencias nuevas. (`backend/package.json`)
+- [x] Hacer commit con un mensaje claro y `git push`. (`./`)
 - [ ] Añadir `GEMINI_API_KEY`, `GEMINI_MODELO` y `GEMINI_TIMEOUT_MS` en las variables de Railway. (`Railway`)
+ — **Pendiente:** la aplicación aún no se ha desplegado en Railway.
 - [ ] Ejecutar el script del catálogo en la base de Aiven y crear allí la cuenta de administrador con variables de entorno solo en esa sesión. (`database/006_catalogo_materias.sql`, `backend/scripts/crear-admin.js`)
-- [ ] Escribir el resumen de la feature para la siguiente sesión. (`features/007-verificacion-tutor/`)
+ — **Pendiente:** la base de datos de Aiven aún no se ha creado.
 
 ## Mantenimiento
 

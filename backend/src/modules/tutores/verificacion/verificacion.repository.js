@@ -138,3 +138,17 @@ export const buscarCertificadoDeSolicitud = async (solicitudId) => {
     select: { tipoMime: true, nombreOriginal: true, contenido: true },
   });
 };
+
+export const buscarArchivosPendientes = async (desde) => {
+  const documentos = await prisma.documentos_verificacion.findMany({
+    where: {
+      iaProcesadoEn: null,
+      subidoEn: { gte: desde },
+    },
+    select: { archivoId: true },
+    distinct: ["archivoId"],
+  });
+  return documentos
+    .map((documento) => documento.archivoId)
+    .filter(Boolean);
+};

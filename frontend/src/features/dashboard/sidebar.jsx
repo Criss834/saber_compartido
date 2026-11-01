@@ -1,7 +1,7 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/auth-context.jsx";
 import { Avatar } from "./avatar.jsx";
-import { GRUPOS_NAVEGACION } from "./navegacion.js";
+import { gruposDeRol } from "./navegacion.js";
 
 const Marca = (
   <svg viewBox="0 0 24 24" className="h-6 w-6 fill-white" aria-hidden="true">
@@ -67,6 +67,13 @@ const ICONOS = {
       <path d="M4.5 20.5v-.7a5.8 5.8 0 0 1 5.8-5.8h3.4a5.8 5.8 0 0 1 5.8 5.8v.7" />
     </svg>
   ),
+  verificaciones: (
+    <svg {...svgBase}>
+      <path d="M9 11.5 11 13.5 15.5 9" />
+      <path d="M12 21.5a9 9 0 1 0-8.5-6.2" />
+      <path d="M3 21.5v-5h5" />
+    </svg>
+  ),
 };
 
 const IconoSalir = (
@@ -87,6 +94,8 @@ export const Sidebar = ({ abierto = false, alNavegar, onCerrarSesion }) => {
   const nombreCompleto = [usuario?.nombres, usuario?.apellidos]
     .filter(Boolean)
     .join(" ");
+
+  const gruposVisibles = gruposDeRol(usuario?.rol);
 
   return (
     <aside
@@ -114,7 +123,7 @@ export const Sidebar = ({ abierto = false, alNavegar, onCerrarSesion }) => {
         className="min-h-0 flex-1 overflow-y-auto"
         aria-label="Navegación principal"
       >
-        {GRUPOS_NAVEGACION.map((grupo) => (
+        {gruposVisibles.map((grupo) => (
           <div key={grupo.etiqueta}>
             <p className="mb-[9px] px-[11px] text-[10px] font-extrabold uppercase tracking-[1px] text-[#a19ab0]">
               {grupo.etiqueta}

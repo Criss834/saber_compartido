@@ -62,7 +62,8 @@ export const resolver = async (req, res, next) => {
       req.usuarioId,
     );
     return res.status(200).json({
-      mensaje: `Solicitud ${decision}`,
+      mensaje:
+        decision === "aprobado" ? "Solicitud aprobada" : "Solicitud rechazada",
       ...resultado,
     });
   } catch (error) {

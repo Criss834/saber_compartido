@@ -7,6 +7,7 @@ import dashboardRoutes from "./modules/dashboard/dashboard.routes.js";
 import materiasRoutes from "./modules/materias/materias.routes.js";
 import tutoresRoutes from "./modules/tutores/tutores.routes.js";
 import adminVerificacionRoutes from "./modules/tutores/verificacion/verificacion.routes.js";
+import { iniciarBarridoPendientes } from "./modules/tutores/verificacion/verificacion.service.js";
 import { errorHandler } from "./shared/middlewares/errorHandler.js";
 
 const app = express();
@@ -31,6 +32,7 @@ app.use(errorHandler);
 
 app.listen(config.puerto, () => {
   console.log(`Servidor escuchando en http://localhost:${config.puerto}`);
+  iniciarBarridoPendientes();
 });
 
 export default app;

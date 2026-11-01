@@ -4,7 +4,7 @@
 
 Al guardarse una solicitud de tutor (006), el backend lanza en segundo plano la lectura del certificado con un modelo de IA (Gemini Flash). El modelo solo devuelve datos en un JSON; el backend los valida con Zod, los compara con lo declarado y con la cuenta, y guarda el resultado en las columnas `ia_*` de `documentos_verificacion`. Un administrador ve ese primer vistazo, abre el certificado y aprueba o rechaza cada materia. Solo esa acción cambia `estado` y, al aprobar, el rol del usuario.
 
-Todo lo relacionado con IA y verificación vive en el sub-módulo aislado `backend/src/modules/tutores/verificacion/` (como indica el tech-stack), con el proveedor detrás de una única función. La vista de administrador se construye sobre el shell del dashboard con la entrada "Verificaciones" visible solo para ese rol. La referencia visual es la sección de administrador del prototipo `Saber-Compartido-Dashboard`, que se replica en React con los tokens existentes sin copiar su código de demostración.
+Todo lo relacionado con IA y verificación vive en el sub-módulo aislado `backend/src/modules/tutores/verificacion/` (como indica el tech-stack), con el proveedor detrás de una única función. La vista de administrador se construye sobre el shell del dashboard, con un sidebar propio para ese rol ("Resumen" y "Verificación de tutores"). La referencia visual es la sección de administrador del prototipo `Saber-Compartido-Dashboard`, que se replica en React con los tokens existentes sin copiar su código de demostración.
 
 ## Implementación
 
@@ -38,7 +38,7 @@ Todo lo relacionado con IA y verificación vive en el sub-módulo aislado `backe
 
 9. **Estudiar el prototipo.** Leer la sección de administrador de `Saber-Compartido-Dashboard` (lista, tarjeta de revisión, textos, estados y colores) y mapearla a los tokens de `index.css`.
 
-10. **Cliente HTTP y navegación.** `frontend/src/features/verificacion/api-verificacion.js` con el patrón de `api-resumen.js`. En `navegacion.js` se añade una sección "Administración" con la entrada "Verificaciones" y un campo `soloRol`; `sidebar.jsx` filtra por el rol de `usuario`. Este es el único cambio al sidebar y se justifica porque es la primera entrada condicionada por rol.
+10. **Cliente HTTP y navegación.** `frontend/src/features/verificacion/api-verificacion.js` con el patrón de `api-resumen.js`. En `navegacion.js` cada rol tiene su propio menú (`gruposDeRol(rol)`): el administrador ve solo el grupo "Administración" con "Resumen" y "Verificación de tutores", como en el prototipo, y estudiante y tutor conservan su menú. "Usuarios" y "Reportes" del prototipo se omiten porque `mission.md` limita el rol a verificar tutores. En `/dashboard`, el administrador ve un Resumen propio (`ResumenAdmin.jsx`) calculado con la lista de verificaciones. Las rutas del estudiante redirigen al administrador, salvo "Mi perfil" y "Notificaciones", y el backend responde 403 al administrador en `/api/tutores/solicitudes`.
 
 11. **Vistas de administración.** `frontend/src/pages/Dashboard/Verificaciones.jsx` (lista con indicador "Pendiente de revisión" o "Requiere revisión manual") y `VerificacionDetalle.jsx` (declarado frente a extraído, alertas, enlace al certificado en una pestaña nueva, botones Aprobar y Rechazar con confirmación y "Reprocesar"), con estados de carga, error con "Reintentar" y vacío. Un componente `RutaPorRol` envuelve las rutas y redirige a `/dashboard` si el rol no es administrador. Las rutas se registran en `App.jsx` dentro de `LayoutDashboard`.
 

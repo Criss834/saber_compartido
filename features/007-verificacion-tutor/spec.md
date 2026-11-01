@@ -20,11 +20,11 @@ Revisar certificados a mano, uno por uno, es lento. La IA agiliza esa primera re
 ### Alertas (comparación hecha por el backend, no por el modelo)
 - [ ] La comparación normaliza el texto: mayúsculas, sin tildes y sin espacios extra.
 - [ ] Se genera una alerta si: el nombre extraído no coincide con el de la cuenta; la materia solicitada no aparece en el certificado; la nota extraída no coincide con la declarada; la nota extraída es menor que 4.00; el estado de la materia no es APROBADO; no se detecta bloque de firma; el documento no es legible; o no se pudo procesar.
-- [ ] Cada alerta tiene un texto claro y se guarda en `ia_alertas`.
+- [ ] Cada alerta tiene un texto claro y se guarda en `ia_alertas` como `{codigo, mensaje}`. La excepción es "no se pudo procesar": no se guarda como alerta, se reconoce porque `ia_procesado_en` queda nulo (y `ia_alertas` también), y el indicador la trata igual que una solicitud con alertas.
 - [ ] La solicitud muestra un indicador: "Pendiente de revisión" (sin alertas) o "Requiere revisión manual" (con alertas o no procesada).
 
 ### Vista de administrador
-- [ ] Un usuario con rol `administrador` ve una entrada "Verificaciones" en el sidebar; los demás no la ven y sus rutas responden 403.
+- [ ] Un usuario con rol `administrador` tiene su propio sidebar, según el prototipo: un grupo "Administración" con "Resumen" y "Verificación de tutores". Los demás roles no ven esas entradas y las rutas `/api/admin/*` les responden 403.
 - [ ] La lista muestra las solicitudes `pendiente` con nombre de la cuenta, materia, nota declarada, fecha de envío y el indicador de revisión.
 - [ ] El detalle muestra lado a lado lo declarado y lo extraído por la IA, las alertas y un botón para ver el certificado.
 - [ ] El certificado solo se puede ver a través de un endpoint protegido, accesible únicamente para administradores.
@@ -51,7 +51,7 @@ Revisar certificados a mano, uno por uno, es lento. La IA agiliza esa primera re
 - Comprobar que el certificado sea auténtico (firma, sello o consulta al correo de validación): lo evalúa la persona.
 - Motivo de rechazo y notificaciones por correo al estudiante.
 - "Modo tutor" / "Mis tutorías" y cualquier vista de tutor en el shell.
-- Crear administradores desde la aplicación: se crean con un script SQL.
+- Crear administradores desde la aplicación: se crean con el script `backend/scripts/crear-admin.js` y variables de entorno (ver "Catálogo y cuenta de administrador").
 - Revocar una aprobación o reabrir una solicitud resuelta.
 - Columna `codigo` en `materias` y carga completa del catálogo (esta feature solo añade las 7 materias del certificado de prueba, sin Inglés).
 - Perfil público del tutor, su calificación y el semestre.

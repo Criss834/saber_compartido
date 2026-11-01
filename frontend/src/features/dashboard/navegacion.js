@@ -1,4 +1,4 @@
-export const GRUPOS_NAVEGACION = [
+const GRUPOS_ESTUDIANTE = [
   {
     etiqueta: "Menú principal",
     enlaces: [
@@ -27,6 +27,7 @@ export const GRUPOS_NAVEGACION = [
         ruta: "/dashboard/notificaciones",
         etiqueta: "Notificaciones",
         icono: "notificaciones",
+        todosLosRoles: true,
       },
     ],
   },
@@ -39,18 +40,53 @@ export const GRUPOS_NAVEGACION = [
         icono: "ser-tutor",
         implementado: true,
       },
-      { ruta: "/dashboard/mi-perfil", etiqueta: "Mi perfil", icono: "perfil" },
+      {
+        ruta: "/dashboard/mi-perfil",
+        etiqueta: "Mi perfil",
+        icono: "perfil",
+        todosLosRoles: true,
+      },
     ],
   },
 ];
 
-export const PANTALLAS_PLACEHOLDER = GRUPOS_NAVEGACION.flatMap((grupo) =>
+// Según el prototipo, el administrador tiene su propio menú. "Usuarios" y
+// "Reportes" quedan fuera: mission.md limita el rol a verificar tutores.
+const GRUPOS_ADMINISTRADOR = [
+  {
+    etiqueta: "Administración",
+    enlaces: [
+      {
+        ruta: "/dashboard",
+        etiqueta: "Resumen",
+        icono: "resumen",
+        inicio: true,
+      },
+      {
+        ruta: "/dashboard/admin/verificaciones",
+        etiqueta: "Verificación de tutores",
+        icono: "verificaciones",
+        implementado: true,
+      },
+    ],
+  },
+];
+
+export const gruposDeRol = (rol) =>
+  rol === "administrador" ? GRUPOS_ADMINISTRADOR : GRUPOS_ESTUDIANTE;
+
+// Pantallas aún sin implementar. Las marcadas con `todosLosRoles` (Mi perfil,
+// Notificaciones) también son accesibles para el administrador.
+export const PANTALLAS_PLACEHOLDER = GRUPOS_ESTUDIANTE.flatMap((grupo) =>
   grupo.enlaces.filter((enlace) => !enlace.inicio && !enlace.implementado),
 );
 
+const TODOS_LOS_ENLACES = [...GRUPOS_ESTUDIANTE, ...GRUPOS_ADMINISTRADOR].flatMap(
+  (grupo) => grupo.enlaces,
+);
+
 export const etiquetaDeRuta = (ruta) => {
-  const enlaces = GRUPOS_NAVEGACION.flatMap((grupo) => grupo.enlaces);
-  const coincidencia = enlaces.find((enlace) => enlace.ruta === ruta);
+  const coincidencia = TODOS_LOS_ENLACES.find((enlace) => enlace.ruta === ruta);
   if (coincidencia) return coincidencia.etiqueta;
 
   const segmento = ruta.split("/").filter(Boolean).pop() ?? "";

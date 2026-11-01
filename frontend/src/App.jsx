@@ -5,10 +5,33 @@ import { Login } from "./pages/Login/Login.jsx";
 import { Resumen } from "./pages/Dashboard/Resumen.jsx";
 import { SerTutor } from "./pages/Dashboard/SerTutor.jsx";
 import { Proximamente } from "./pages/Dashboard/Proximamente.jsx";
-import { AuthProvider } from "./features/auth/auth-context.jsx";
+import { Verificaciones } from "./pages/Dashboard/Verificaciones.jsx";
+import { VerificacionDetalle } from "./pages/Dashboard/VerificacionDetalle.jsx";
+import { ResumenAdmin } from "./pages/Dashboard/ResumenAdmin.jsx";
+import { AuthProvider, useAuth } from "./features/auth/auth-context.jsx";
 import { RutaProtegida } from "./features/auth/ruta-protegida.jsx";
+import { RutaPorRol } from "./features/auth/ruta-por-rol.jsx";
 import { LayoutDashboard } from "./features/dashboard/layout.jsx";
 import { PANTALLAS_PLACEHOLDER } from "./features/dashboard/navegacion.js";
+
+// Las pantallas del estudiante (y del tutor, que conserva esa vista) no están
+// disponibles para el administrador: se le redirige a su Resumen. Excepción:
+// Mi perfil y Notificaciones (`todosLosRoles`) son accesibles para todos.
+const ROLES_ESTUDIANTE = ["estudiante", "tutor"];
+const ROLES_ADMIN = ["administrador"];
+
+const rutaPlaceholder = (enlace) => (
+  <Route
+    key={enlace.ruta}
+    path={enlace.ruta.replace("/dashboard/", "")}
+    element={<Proximamente titulo={enlace.etiqueta} />}
+  />
+);
+
+const ResumenPorRol = () => {
+  const { usuario } = useAuth();
+  return usuario?.rol === "administrador" ? <ResumenAdmin /> : <Resumen />;
+};
 
 const App = () => {
   return (
@@ -21,15 +44,25 @@ const App = () => {
 
           <Route element={<RutaProtegida />}>
             <Route path="/dashboard" element={<LayoutDashboard />}>
-              <Route index element={<Resumen />} />
-              <Route path="ser-tutor" element={<SerTutor />} />
-              {PANTALLAS_PLACEHOLDER.map((enlace) => (
+              <Route index element={<ResumenPorRol />} />
+              {PANTALLAS_PLACEHOLDER.filter(
+                (enlace) => enlace.todosLosRoles,
+              ).map(rutaPlaceholder)}
+              <Route
+                element={<RutaPorRol rolesPermitidos={ROLES_ESTUDIANTE} />}
+              >
+                <Route path="ser-tutor" element={<SerTutor />} />
+                {PANTALLAS_PLACEHOLDER.filter(
+                  (enlace) => !enlace.todosLosRoles,
+                ).map(rutaPlaceholder)}
+              </Route>
+              <Route element={<RutaPorRol rolesPermitidos={ROLES_ADMIN} />}>
+                <Route path="admin/verificaciones" element={<Verificaciones />} />
                 <Route
-                  key={enlace.ruta}
-                  path={enlace.ruta.replace("/dashboard/", "")}
-                  element={<Proximamente titulo={enlace.etiqueta} />}
+                  path="admin/verificaciones/:id"
+                  element={<VerificacionDetalle />}
                 />
-              ))}
+              </Route>
             </Route>
           </Route>
 
