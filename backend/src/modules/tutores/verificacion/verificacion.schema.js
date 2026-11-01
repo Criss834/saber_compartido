@@ -17,4 +17,10 @@ export const esquemaExtraccionCertificado = z.object({
   legible: z.boolean(),
 });
 
+export const esquemaResolverVerificacion = z.object({
+  decision: z.enum(["aprobado", "rechazado"], {
+    error: "La decisión debe ser aprobado o rechazado",
+  }),
+});
+
 export default esquemaExtraccionCertificado;

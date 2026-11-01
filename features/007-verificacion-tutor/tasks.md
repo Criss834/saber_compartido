@@ -21,15 +21,15 @@
 - [x] Lanzar `procesarArchivo` sin esperar su resultado al final del registro de solicitudes, después de confirmarse la transacción, de forma que un fallo de la IA nunca afecte la respuesta ni el guardado. (`backend/src/modules/tutores/tutores.service.js`)
 
 ### Administración
-- [ ] Crear el middleware que, después de `requerir-sesion`, consulta el rol actual en la BD y responde 403 `ACCESO_DENEGADO` si no es `administrador`. (`backend/src/shared/auth/requerir-rol.js`)
-- [ ] Crear `GET /api/admin/verificaciones`: solicitudes `pendiente` con nombre de la cuenta, materia, nota declarada, fecha e indicador ("Pendiente de revisión" si no hay alertas y está procesada; "Requiere revisión manual" en otro caso). (`backend/src/modules/tutores/verificacion/verificacion.controller.js`, `backend/src/modules/tutores/verificacion/verificacion.routes.js`)
-- [ ] Crear `GET /api/admin/verificaciones/:id`: detalle con lo declarado, lo extraído y las alertas del documento más reciente de la solicitud. (`backend/src/modules/tutores/verificacion/verificacion.controller.js`)
-- [ ] Crear `GET /api/admin/verificaciones/:id/certificado`: devuelve los bytes con su tipo MIME, `Content-Disposition: inline`, `Cache-Control: private, no-store` y `X-Content-Type-Options: nosniff`. (`backend/src/modules/tutores/verificacion/verificacion.controller.js`)
-- [ ] Crear `POST /api/admin/verificaciones/:id/resolver` con `{decision}` validado con Zod (`aprobado` o `rechazado`): en una transacción actualiza `estado`, `revisado_por` y `revisado_en` solo si sigue `pendiente` (si no, 409 `SOLICITUD_YA_RESUELTA`) y, al aprobar, pone `usuarios.rol = 'tutor'` solo si era `estudiante`. (`backend/src/modules/tutores/verificacion/verificacion.service.js`, `backend/src/modules/tutores/verificacion/verificacion.schema.js`)
-- [ ] Crear `POST /api/admin/verificaciones/:id/reprocesar`: lanza `procesarArchivo` y responde de inmediato. (`backend/src/modules/tutores/verificacion/verificacion.controller.js`)
-- [ ] Montar las rutas bajo `/api/admin`, todas con `requerir-sesion` y `requerir-rol`. (`backend/src/app.js`)
-- [ ] Crear el script del administrador: lee `ADMIN_CORREO`, `ADMIN_NOMBRES`, `ADMIN_APELLIDOS` y `ADMIN_CONTRASENA` del entorno, hashea con bcrypt (costo 10) y crea o actualiza la cuenta con rol `administrador` y correo verificado. Rechaza ejecutarse si falta alguna variable. (`backend/scripts/crear-admin.js`)
-- [ ] Confirmar que ningún endpoint, mensaje de error ni log devuelve `contenido`, la clave de la API ni datos del certificado. (`backend/src/modules/tutores/`)
+- [x] Crear el middleware que, después de `requerir-sesion`, consulta el rol actual en la BD y responde 403 `ACCESO_DENEGADO` si no es `administrador`. (`backend/src/shared/auth/requerir-rol.js`)
+- [x] Crear `GET /api/admin/verificaciones`: solicitudes `pendiente` con nombre de la cuenta, materia, nota declarada, fecha e indicador ("Pendiente de revisión" si no hay alertas y está procesada; "Requiere revisión manual" en otro caso). (`backend/src/modules/tutores/verificacion/verificacion.controller.js`, `backend/src/modules/tutores/verificacion/verificacion.routes.js`)
+- [x] Crear `GET /api/admin/verificaciones/:id`: detalle con lo declarado, lo extraído y las alertas del documento más reciente de la solicitud. (`backend/src/modules/tutores/verificacion/verificacion.controller.js`)
+- [x] Crear `GET /api/admin/verificaciones/:id/certificado`: devuelve los bytes con su tipo MIME, `Content-Disposition: inline`, `Cache-Control: private, no-store` y `X-Content-Type-Options: nosniff`. (`backend/src/modules/tutores/verificacion/verificacion.controller.js`)
+- [x] Crear `POST /api/admin/verificaciones/:id/resolver` con `{decision}` validado con Zod (`aprobado` o `rechazado`): en una transacción actualiza `estado`, `revisado_por` y `revisado_en` solo si sigue `pendiente` (si no, 409 `SOLICITUD_YA_RESUELTA`) y, al aprobar, pone `usuarios.rol = 'tutor'` solo si era `estudiante`. (`backend/src/modules/tutores/verificacion/verificacion.service.js`, `backend/src/modules/tutores/verificacion/verificacion.schema.js`)
+- [x] Crear `POST /api/admin/verificaciones/:id/reprocesar`: lanza `procesarArchivo` y responde de inmediato. (`backend/src/modules/tutores/verificacion/verificacion.controller.js`)
+- [x] Montar las rutas bajo `/api/admin`, todas con `requerir-sesion` y `requerir-rol`. (`backend/src/app.js`)
+- [x] Crear el script del administrador: lee `ADMIN_CORREO`, `ADMIN_NOMBRES`, `ADMIN_APELLIDOS` y `ADMIN_CONTRASENA` del entorno, hashea con bcrypt (costo 10) y crea o actualiza la cuenta con rol `administrador` y correo verificado. Rechaza ejecutarse si falta alguna variable. (`backend/scripts/crear-admin.js`)
+- [x] Confirmar que ningún endpoint, mensaje de error ni log devuelve `contenido`, la clave de la API ni datos del certificado. (`backend/src/modules/tutores/`)
 
 ## Frontend
 
