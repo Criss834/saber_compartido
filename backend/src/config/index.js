@@ -42,6 +42,11 @@ export const config = {
     secretoCliente: GOOGLE_CLIENT_SECRET,
     uriRedireccion: GOOGLE_REDIRECT_URI,
   },
+  ia: {
+    apiKey: process.env.GEMINI_API_KEY ?? "",
+    modelo: process.env.GEMINI_MODELO ?? "",
+    timeoutMs: Number(process.env.GEMINI_TIMEOUT_MS ?? 60000),
+  },
 };
 
 export default config;

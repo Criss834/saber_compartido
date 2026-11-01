@@ -3,11 +3,11 @@
 ## Backend
 
 ### Catálogo y configuración
-- [ ] Revisar el último script numerado de `database/` y elegir el siguiente número libre (el anterior es `005_registro_tutor.sql`). (`database/006_catalogo_materias.sql`)
-- [ ] Crear el script que inserta con `INSERT IGNORE` las materias: Estadística I, Algorítmica y lógica de programación, Álgebra y trigonometría, Lógica para solución de problemas, Lenguajes de programación, Bases de datos y Programación web (línea profundización). (`database/006_catalogo_materias.sql`)
-- [ ] Ejecutar el script en el MySQL de Docker, repetirlo para confirmar que no duplica, y comprobar en Workbench que el catálogo tiene "Cálculo diferencial" más las 7 nuevas. (`database/006_catalogo_materias.sql`)
-- [ ] Añadir `ia.apiKey`, `ia.modelo` y `ia.timeoutMs` leyendo `GEMINI_API_KEY`, `GEMINI_MODELO` y `GEMINI_TIMEOUT_MS`, sin que la aplicación falle al arrancar si falta la clave. (`backend/src/config/index.js`)
-- [ ] Añadir las tres variables a `.env.example` con valores vacíos o de ejemplo, y confirmar que `backend/.env` está en `.gitignore`. (`backend/.env.example`, `.gitignore`)
+- [x] Revisar el último script numerado de `database/` y elegir el siguiente número libre (el anterior es `005_registro_tutor.sql`). (`database/006_catalogo_materias.sql`)
+- [x] Crear el script que inserta con `INSERT IGNORE` las materias: Estadística I, Algorítmica y lógica de programación, Álgebra y trigonometría, Lógica para solución de problemas, Lenguajes de programación, Bases de datos y Programación web (línea profundización). (`database/006_catalogo_materias.sql`)
+- [x] Ejecutar el script en el MySQL de Docker, repetirlo para confirmar que no duplica, y comprobar en Workbench que el catálogo tiene "Cálculo diferencial" más las 7 nuevas. (`database/006_catalogo_materias.sql`)
+- [x] Añadir `ia.apiKey`, `ia.modelo` y `ia.timeoutMs` leyendo `GEMINI_API_KEY`, `GEMINI_MODELO` y `GEMINI_TIMEOUT_MS`, sin que la aplicación falle al arrancar si falta la clave. (`backend/src/config/index.js`)
+- [x] Añadir las tres variables a `.env.example` con valores vacíos o de ejemplo, y confirmar que `backend/.env` está en `.gitignore`. (Ya estaban en `backend/.env.template` — nombre usado por el repo — y `.env`/`.env.*` están en `backend/.gitignore` con excepción para el template.) (`backend/.env.example`, `.gitignore`)
 
 ### Lectura con IA
 - [ ] Crear el esquema Zod de la extracción: nombre, primer apellido y segundo apellido (texto o nulo), `materias` (nombre, nota numérica o nula, estado o nulo), `firma_detectada` y `legible` (booleanos). (`backend/src/modules/tutores/verificacion/verificacion.schema.js`)
