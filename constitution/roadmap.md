@@ -10,19 +10,18 @@
 6. **007 · Verificación de tutor con IA** — extrae datos del certificado y permite al admin aprobar o rechazar el perfil (TUT-VER-001).
 7. **008 · Búsqueda de tutores** — filtra tutores ya verificados por materia (BUS-TUT-001).
 8. **009 · Disponibilidad del tutor** — el tutor define bloques de horario que alimentan las solicitudes (DISP-TUT-001).
+9. **010 · Solicitud de tutoría personalizada** — flujo de solicitar, aceptar o rechazar una tutoría 1 a 1 (SOL-TUT-001).
 
 ## Siguiente 🔜
 
-- **Solicitud de tutoría personalizada** — flujo de solicitar, aceptar o rechazar una tutoría 1 a 1 (SOL-TUT-001).
+- **Crear sesión grupal** — el tutor abre una sesión con cupo limitado (GRU-TUT-001).
 
 ## Backlog / ideas 💡
 
 _Orden aproximado según lo definido en tech-stack.md (por épicas y dependencias) — nada aquí está comprometido a una fecha, solo la entrada en "Siguiente" lo está:_
 
-- **Resumen de próximas tutorías** — vista de agenda dentro del dashboard (DAS-EST-003).
 - **Calificación de tutor** — el estudiante califica al finalizar la tutoría, una sola vez por sesión (CAL-TUT-001).
-- **Notificaciones del dashboard** — alertas de solicitudes pendientes y tutorías por calificar (DAS-EST-004).
-- **Crear sesión grupal** — el tutor abre una sesión con cupo limitado (GRU-TUT-001).
+- **013 · Notificaciones del dashboard** — al entrar al dashboard, el usuario ve en la campana, en la página "Notificaciones" y en "Actividad reciente" sus acciones pendientes y las novedades de sus tutorías (sesiones por confirmar, respuestas del tutor, tutorías próximas, solicitudes por responder y calificaciones por reseñar), y puede marcarlas como leídas (DAS-EST-003). Unifica la antigua entrada "Resumen de próximas tutorías — vista de agenda" (esa agenda ya existe en el Resumen desde la 004-005 y aquí solo se corrige) con "Notificaciones del dashboard" (DAS-EST-004) del backlog.
 - **Inscripción a sesión grupal** — un estudiante se inscribe respetando el cupo disponible (GRU-INS-001).
 - **(fase futura) Panel de administración completo** — reportes y gestión general de usuarios; hoy el rol admin solo verifica tutores.
 
