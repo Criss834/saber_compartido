@@ -3,12 +3,14 @@ import { diaCorto, diaLargo, horaCorta, horaLarga, numeroDia, rangoSemana } from
 // Calendario de lunes a sábado con bloques de una hora, según la vista
 // "Mi disponibilidad" del prototipo. Dos modos:
 // - "edicion": cada bloque es un botón (disponible ↔ no disponible); el confirmado
-//   no cambia y el pasado está deshabilitado.
-// - "lectura": calendario público, solo muestra los bloques disponibles.
+//   y el que tiene una solicitud pendiente no cambian, y el pasado está deshabilitado.
+// - "lectura": calendario público, solo muestra los bloques disponibles. Si se
+//   pasa `onPulsarBloque`, cada bloque libre se puede seleccionar (010).
 
 const ETIQUETA_ESTADO = {
   disponible: "Disponible",
   confirmado: "Con tutoría confirmada",
+  pendiente: "Con solicitud pendiente",
   no_disponible: "No disponible",
   pasado: "Ya pasó",
 };
@@ -16,6 +18,7 @@ const ETIQUETA_ESTADO = {
 const CLASE_ESTADO = {
   disponible: "bg-status-success text-status-success-ink",
   confirmado: "bg-[#f0eaff] text-[#7041bd]",
+  pendiente: "bg-status-pending text-status-pending-ink",
   no_disponible: "bg-[#f5f4f7] text-[#b1aaba]",
   pasado: "cursor-not-allowed bg-[#faf9fb] text-[#d6d2dc] line-through",
 };
@@ -23,11 +26,15 @@ const CLASE_ESTADO = {
 const LEYENDA_EDICION = [
   ["#b9edc9", "Disponible"],
   ["#d8c6ff", "Con tutoría confirmada"],
+  ["#ffe3a3", "Con solicitud pendiente"],
   ["#e9e6ed", "No disponible"],
 ];
 
 const claseBotonNavegacion =
   "grid h-[33px] w-[33px] place-items-center rounded-[9px] border border-border bg-white text-[15px] font-bold text-text transition enabled:hover:border-[#d6c6f6] enabled:hover:bg-[#fbf9ff] disabled:cursor-not-allowed disabled:opacity-40";
+
+const claseBloque =
+  "my-[5px] block w-full rounded-[6px] border-0 px-[2px] py-[7px] text-[9px] font-bold transition max-[650px]:text-[8px]";
 
 export const NavegacionSemanas = ({ semana, semanas, onCambiar, deshabilitada = false }) => {
   const indice = semanas.indexOf(semana);
@@ -58,7 +65,7 @@ export const NavegacionSemanas = ({ semana, semanas, onCambiar, deshabilitada = 
   );
 };
 
-const Bloque = ({ fecha, bloque, onPulsar }) => {
+const BloqueEditable = ({ fecha, bloque, onPulsar }) => {
   const descripcion = `${diaLargo(fecha)}, ${horaLarga(bloque.horaInicio)} · ${ETIQUETA_ESTADO[bloque.estado]}`;
   return (
     <button
@@ -68,14 +75,46 @@ const Bloque = ({ fecha, bloque, onPulsar }) => {
       aria-pressed={bloque.estado === "disponible"}
       disabled={bloque.estado === "pasado"}
       onClick={() => onPulsar(fecha, bloque)}
-      className={`my-[5px] block w-full rounded-[6px] border-0 px-[2px] py-[7px] text-[9px] font-bold transition enabled:hover:brightness-[0.97] max-[650px]:text-[8px] ${CLASE_ESTADO[bloque.estado]}`}
+      className={`${claseBloque} enabled:hover:brightness-[0.97] ${CLASE_ESTADO[bloque.estado]}`}
     >
       {horaCorta(bloque.horaInicio)}
     </button>
   );
 };
 
-export const CalendarioSemanal = ({ dias, modo = "edicion", onPulsarBloque }) => {
+const BloquePublico = ({ fecha, bloque, onPulsar, seleccionado }) => {
+  const descripcion = `${diaLargo(fecha)}, ${horaLarga(bloque.horaInicio)} – ${horaLarga(bloque.horaFin)}`;
+  if (!onPulsar) {
+    return (
+      <span title={descripcion} className={`${claseBloque} ${CLASE_ESTADO.disponible}`}>
+        {horaCorta(bloque.horaInicio)}
+      </span>
+    );
+  }
+  return (
+    <button
+      type="button"
+      title={`Solicitar: ${descripcion}`}
+      aria-label={`Solicitar tutoría el ${descripcion}`}
+      aria-pressed={seleccionado}
+      onClick={() => onPulsar(fecha, bloque)}
+      className={`${claseBloque} hover:-translate-y-px hover:shadow-[0_3px_9px_rgba(22,132,71,0.18)] ${
+        seleccionado
+          ? "bg-status-success-ink text-white"
+          : CLASE_ESTADO.disponible
+      }`}
+    >
+      {horaCorta(bloque.horaInicio)}
+    </button>
+  );
+};
+
+export const CalendarioSemanal = ({
+  dias,
+  modo = "edicion",
+  onPulsarBloque,
+  seleccionado = null,
+}) => {
   const edicion = modo === "edicion";
   return (
     <>
@@ -92,25 +131,24 @@ export const CalendarioSemanal = ({ dias, modo = "edicion", onPulsarBloque }) =>
               <strong className="mb-[9px] block text-[10px] text-text">
                 {diaCorto(fecha)} <span className="font-normal text-text-muted">{numeroDia(fecha)}</span>
               </strong>
-              {edicion &&
-                visibles.map((bloque) => (
-                  <Bloque
+              {visibles.map((bloque) =>
+                edicion ? (
+                  <BloqueEditable
                     key={bloque.horaInicio}
                     fecha={fecha}
                     bloque={bloque}
                     onPulsar={onPulsarBloque}
                   />
-                ))}
-              {!edicion &&
-                visibles.map((bloque) => (
-                  <span
+                ) : (
+                  <BloquePublico
                     key={bloque.horaInicio}
-                    title={`${diaLargo(fecha)}, ${horaLarga(bloque.horaInicio)} – ${horaLarga(bloque.horaFin)}`}
-                    className={`my-[5px] block rounded-[6px] px-[2px] py-[7px] text-[9px] font-bold max-[650px]:text-[8px] ${CLASE_ESTADO.disponible}`}
-                  >
-                    {horaCorta(bloque.horaInicio)}
-                  </span>
-                ))}
+                    fecha={fecha}
+                    bloque={bloque}
+                    onPulsar={onPulsarBloque}
+                    seleccionado={seleccionado === bloque.id}
+                  />
+                ),
+              )}
               {!edicion && visibles.length === 0 && (
                 <span className="mt-[5px] block py-[7px] text-[9px] text-[#b1aaba]">—</span>
               )}

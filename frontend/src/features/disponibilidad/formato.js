@@ -76,3 +76,8 @@ export const horaLarga = (hora) => {
 };
 
 export const claveBloque = (fecha, horaInicio) => `${fecha}T${horaInicio}`;
+
+const formatoMes = new Intl.DateTimeFormat("es-CO", { timeZone: "UTC", month: "short" });
+
+// "NOV" (recuadro de fecha del prototipo)
+export const mesCorto = (fecha) => limpiar(formatoMes.format(aFecha(fecha))).toUpperCase();

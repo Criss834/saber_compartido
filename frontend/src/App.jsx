@@ -7,6 +7,8 @@ import { SerTutor } from "./pages/Dashboard/SerTutor.jsx";
 import { BuscarTutores } from "./pages/Dashboard/BuscarTutores.jsx";
 import { PerfilTutor } from "./pages/Dashboard/PerfilTutor.jsx";
 import { MiDisponibilidad } from "./pages/Dashboard/MiDisponibilidad.jsx";
+import { MisTutorias } from "./pages/Dashboard/MisTutorias.jsx";
+import { SolicitudesRecibidas } from "./pages/Dashboard/SolicitudesRecibidas.jsx";
 import { Proximamente } from "./pages/Dashboard/Proximamente.jsx";
 import { Verificaciones } from "./pages/Dashboard/Verificaciones.jsx";
 import { VerificacionDetalle } from "./pages/Dashboard/VerificacionDetalle.jsx";
@@ -58,12 +60,14 @@ const App = () => {
                 <Route path="ser-tutor" element={<SerTutor />} />
                 <Route path="buscar-tutores" element={<BuscarTutores />} />
                 <Route path="buscar-tutores/:id" element={<PerfilTutor />} />
+                <Route path="mis-tutorias" element={<MisTutorias />} />
                 {PANTALLAS_PLACEHOLDER.filter(
                   (enlace) => !enlace.todosLosRoles,
                 ).map(rutaPlaceholder)}
               </Route>
               <Route element={<RutaPorRol rolesPermitidos={ROLES_TUTOR} />}>
                 <Route path="mi-disponibilidad" element={<MiDisponibilidad />} />
+                <Route path="solicitudes-recibidas" element={<SolicitudesRecibidas />} />
               </Route>
               <Route element={<RutaPorRol rolesPermitidos={ROLES_ADMIN} />}>
                 <Route path="admin/verificaciones" element={<Verificaciones />} />

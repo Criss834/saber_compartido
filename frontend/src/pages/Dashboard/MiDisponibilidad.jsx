@@ -13,6 +13,12 @@ import { claveBloque, rangoSemana } from "../../features/disponibilidad/formato.
 
 const MENSAJE_CONFIRMADO =
   "No puedes modificar ni eliminar un bloque con una tutoría confirmada";
+const MENSAJE_PENDIENTE =
+  "Este bloque tiene una solicitud pendiente. Respóndela en “Solicitudes recibidas” antes de cambiarlo.";
+
+// Bloques que el tutor no puede quitar: se envían siempre al guardar, para que
+// el backend no los interprete como eliminados.
+const ESTADOS_RETENIDOS = new Set(["confirmado", "pendiente"]);
 
 const claseBotonPrimario =
   "inline-flex min-h-[39px] items-center justify-center gap-2 rounded-[10px] border-0 bg-primary px-[15px] text-[11px] font-bold text-white shadow-[0_7px_15px_rgba(124,58,237,0.19)] transition enabled:hover:-translate-y-px disabled:cursor-not-allowed disabled:opacity-50";
@@ -132,7 +138,7 @@ export const MiDisponibilidad = () => {
   );
 
   const conteo = useMemo(() => {
-    const total = { disponible: 0, confirmado: 0, no_disponible: 0, pasado: 0 };
+    const total = { disponible: 0, confirmado: 0, pendiente: 0, no_disponible: 0, pasado: 0 };
     for (const dia of dias) for (const bloque of dia.bloques) total[bloque.estado] += 1;
     return total;
   }, [dias]);
@@ -142,6 +148,10 @@ export const MiDisponibilidad = () => {
       if (guardando || cargando) return;
       if (bloque.estado === "confirmado") {
         setAviso({ tipo: "error", texto: MENSAJE_CONFIRMADO });
+        return;
+      }
+      if (bloque.estado === "pendiente") {
+        setAviso({ tipo: "error", texto: MENSAJE_PENDIENTE });
         return;
       }
       if (bloque.estado === "pasado") return;
@@ -159,10 +169,18 @@ export const MiDisponibilidad = () => {
     if (!datos || !hayCambios || guardando || cargando) return false;
     setGuardando(true);
     setAviso(null);
-    const bloques = [...marcados].map((llave) => {
-      const [fecha, horaInicio] = llave.split("T");
-      return { fecha, horaInicio };
-    });
+    const retenidos = datos.dias.flatMap(({ fecha, bloques: delDia }) =>
+      delDia
+        .filter((bloque) => ESTADOS_RETENIDOS.has(bloque.estado))
+        .map((bloque) => ({ fecha, horaInicio: bloque.horaInicio })),
+    );
+    const bloques = [
+      ...[...marcados].map((llave) => {
+        const [fecha, horaInicio] = llave.split("T");
+        return { fecha, horaInicio };
+      }),
+      ...retenidos,
+    ];
     try {
       const respuesta = await guardarMiSemana(datos.semana, bloques);
       setTerminado({ clave: claveCarga, datos: respuesta });
@@ -368,7 +386,7 @@ export const MiDisponibilidad = () => {
           </div>
 
           <div className="mt-4 rounded-[12px] border border-[#fde7b0] bg-status-pending px-4 py-3 text-[10px] font-semibold text-status-pending-ink">
-            Los bloques con una tutoría confirmada no pueden modificarse ni eliminarse.
+            Los bloques con una tutoría confirmada no pueden modificarse ni eliminarse. Los que tienen una solicitud pendiente, tampoco, hasta que la respondas.
           </div>
         </Panel>
 
@@ -376,6 +394,7 @@ export const MiDisponibilidad = () => {
           <Panel titulo="Resumen de la semana">
             <Contador etiqueta="Bloques disponibles" valor={conteo.disponible} />
             <Contador etiqueta="Tutorías confirmadas" valor={conteo.confirmado} />
+            <Contador etiqueta="Solicitudes pendientes" valor={conteo.pendiente} />
             <Contador etiqueta="No disponibles" valor={conteo.no_disponible} />
             <p className="mb-0 mt-3 text-[10px] leading-[1.6] text-text-muted">
               {hayCambios
@@ -395,6 +414,11 @@ export const MiDisponibilidad = () => {
               icono="▣"
               titulo="Confirmada"
               texto="El bloque está reservado y no se puede editar."
+            />
+            <PasoComoFunciona
+              icono="◷"
+              titulo="Solicitud pendiente"
+              texto="Un estudiante pidió ese horario. Acéptala o recházala en “Solicitudes recibidas”; mientras tanto no se puede quitar."
             />
             <PasoComoFunciona
               icono="×"

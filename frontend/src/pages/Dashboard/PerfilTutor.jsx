@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { Link, useLocation, useParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../../features/auth/auth-context.jsx";
 import { Avatar } from "../../features/dashboard/avatar.jsx";
 import { PROGRAMA_ACADEMICO } from "../../features/tutor/constantes.js";
@@ -7,13 +7,12 @@ import {
   esCancelacion,
   obtenerPerfilTutor,
 } from "../../features/busqueda/api-busqueda.js";
-import {
-  BotonSolicitarProximamente,
-  Calificacion,
-  MarcaVerificado,
-} from "../../features/busqueda/tarjeta-tutor.jsx";
+import { Calificacion, MarcaVerificado } from "../../features/busqueda/tarjeta-tutor.jsx";
 import { formatearNota } from "../../features/busqueda/formato.js";
 import { DisponibilidadPublica } from "../../features/disponibilidad/disponibilidad-publica.jsx";
+import { ModalSolicitar } from "../../features/solicitudes/modal-solicitar.jsx";
+
+const MENSAJE_ENVIADA = "Solicitud enviada. Está pendiente de respuesta del tutor.";
 
 const Panel = ({ titulo, children }) => (
   <section className="min-w-0 overflow-hidden rounded-card border border-[#eeeaf5] bg-white shadow-card">
@@ -48,8 +47,15 @@ const claseBotonSecundario =
 
 export const PerfilTutor = () => {
   const { id } = useParams();
-  const { state } = useLocation();
+  const { state, hash } = useLocation();
+  const navigate = useNavigate();
   const { fijarUsuario } = useAuth();
+
+  // Solicitud de tutoría (010): bloque elegido en el calendario y versión del
+  // calendario (cambia para recargarlo si el horario dejó de estar libre).
+  const [bloqueElegido, setBloqueElegido] = useState(null);
+  const [versionDisponibilidad, setVersionDisponibilidad] = useState(0);
+  const [avisoHorario, setAvisoHorario] = useState(null);
   const volverA = `/dashboard/buscar-tutores${state?.busqueda ?? ""}`;
 
   const [intento, setIntento] = useState(0);
@@ -75,6 +81,19 @@ export const PerfilTutor = () => {
   }, [id, clave, fijarUsuario]);
 
   const reintentar = useCallback(() => setIntento((n) => n + 1), []);
+
+  // "Solicitar" desde la búsqueda llega con #disponibilidad: se baja al calendario
+  // cuando el perfil termina de cargar.
+  useEffect(() => {
+    if (!cargando && !error && hash === "#disponibilidad") {
+      document.getElementById("disponibilidad")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [cargando, error, hash]);
+
+  const irADisponibilidad = (evento) => {
+    evento.preventDefault();
+    document.getElementById("disponibilidad")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
 
   const volver = (
     <Link to={volverA} className={`${claseBotonSecundario} mb-[17px]`}>
@@ -187,7 +206,13 @@ export const PerfilTutor = () => {
           </div>
         </div>
         <div className="max-[650px]:w-full">
-          <BotonSolicitarProximamente texto="Solicitar tutoría" />
+          <a
+            href="#disponibilidad"
+            onClick={irADisponibilidad}
+            className="inline-flex min-h-[39px] items-center justify-center rounded-[10px] bg-accent px-[15px] text-[11px] font-bold text-white shadow-[0_7px_15px_rgba(255,90,140,0.22)] transition hover:-translate-y-px max-[650px]:w-full"
+          >
+            Solicitar tutoría
+          </a>
         </div>
       </section>
 
@@ -227,14 +252,46 @@ export const PerfilTutor = () => {
         </div>
       </div>
 
-      <div className="mt-[17px]">
+      <div id="disponibilidad" className="mt-[17px] scroll-mt-[90px]">
         <Panel titulo="Disponibilidad">
           <p className="mb-[14px] mt-0 text-[10px] leading-[1.6] text-text-muted">
-            Horarios libres del tutor en las próximas semanas (hora de Colombia).
+            Elige un horario libre para solicitar una tutoría (hora de Colombia).
           </p>
-          <DisponibilidadPublica tutorId={tutor.id} />
+          {avisoHorario && (
+            <div
+              role="alert"
+              className="mb-[14px] rounded-[12px] border border-[#fde7b0] bg-status-pending px-4 py-3 text-[11px] font-semibold text-status-pending-ink"
+            >
+              {avisoHorario} Actualizamos el calendario con los horarios que siguen libres.
+            </div>
+          )}
+          <DisponibilidadPublica
+            tutorId={tutor.id}
+            version={versionDisponibilidad}
+            seleccionado={bloqueElegido?.id ?? null}
+            onSeleccionar={(bloque) => {
+              setAvisoHorario(null);
+              setBloqueElegido(bloque);
+            }}
+          />
         </Panel>
       </div>
+
+      {bloqueElegido && (
+        <ModalSolicitar
+          tutor={tutor}
+          bloque={bloqueElegido}
+          onCerrar={() => setBloqueElegido(null)}
+          onEnviada={() =>
+            navigate("/dashboard/mis-tutorias", { state: { aviso: MENSAJE_ENVIADA } })
+          }
+          onHorarioNoDisponible={(mensaje) => {
+            setBloqueElegido(null);
+            setAvisoHorario(`${mensaje}.`);
+            setVersionDisponibilidad((n) => n + 1);
+          }}
+        />
+      )}
     </>
   );
 };

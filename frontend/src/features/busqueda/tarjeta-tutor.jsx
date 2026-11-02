@@ -52,20 +52,6 @@ export const EtiquetaMateria = ({ materia, destacada = false }) => (
 const claseBoton =
   "inline-flex min-h-[32px] items-center justify-center rounded-[10px] border px-[13px] text-[11px] font-bold transition";
 
-export const BotonSolicitarProximamente = ({ texto = "Solicitar" }) => (
-  <button
-    type="button"
-    disabled
-    title="La solicitud de tutorías estará disponible próximamente"
-    className={`${claseBoton} cursor-not-allowed gap-1.5 border-transparent bg-accent text-white opacity-55`}
-  >
-    {texto}
-    <span className="rounded-full bg-white/25 px-1.5 py-px text-[8px] font-extrabold uppercase tracking-[0.4px]">
-      Próximamente
-    </span>
-  </button>
-);
-
 export const TarjetaTutor = ({ tutor, materiaId }) => {
   // El perfil recibe la búsqueda actual para que "Volver" la conserve.
   const { search } = useLocation();
@@ -135,7 +121,13 @@ export const TarjetaTutor = ({ tutor, materiaId }) => {
           >
             Ver perfil
           </Link>
-          <BotonSolicitarProximamente />
+          <Link
+            to={`/dashboard/buscar-tutores/${tutor.id}#disponibilidad`}
+            state={{ busqueda: search }}
+            className={`${claseBoton} border-transparent bg-accent text-white hover:bg-accent-dark`}
+          >
+            Solicitar
+          </Link>
         </div>
       </div>
     </article>

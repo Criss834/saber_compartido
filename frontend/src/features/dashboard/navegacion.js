@@ -18,6 +18,7 @@ const GRUPOS_ESTUDIANTE = [
         ruta: "/dashboard/mis-tutorias",
         etiqueta: "Mis tutorías",
         icono: "tutorias",
+        implementado: true,
       },
       {
         ruta: "/dashboard/tutorias-grupales",
@@ -77,6 +78,13 @@ const GRUPOS_ADMINISTRADOR = [
 const GRUPO_TUTOR = {
   etiqueta: "Mi espacio de tutor",
   enlaces: [
+    {
+      ruta: "/dashboard/solicitudes-recibidas",
+      etiqueta: "Solicitudes recibidas",
+      icono: "solicitudes",
+      implementado: true,
+      contador: "pendientesRecibidas",
+    },
     {
       ruta: "/dashboard/mi-disponibilidad",
       etiqueta: "Mi disponibilidad",

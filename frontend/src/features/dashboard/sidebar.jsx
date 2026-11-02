@@ -2,6 +2,7 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/auth-context.jsx";
 import { Avatar } from "./avatar.jsx";
 import { gruposDeRol } from "./navegacion.js";
+import { usePendientesRecibidas } from "../solicitudes/use-pendientes-recibidas.js";
 
 const Marca = (
   <svg viewBox="0 0 24 24" className="h-6 w-6 fill-white" aria-hidden="true">
@@ -67,6 +68,12 @@ const ICONOS = {
       <path d="M4.5 20.5v-.7a5.8 5.8 0 0 1 5.8-5.8h3.4a5.8 5.8 0 0 1 5.8 5.8v.7" />
     </svg>
   ),
+  solicitudes: (
+    <svg {...svgBase}>
+      <path d="M7 17 17 7" />
+      <path d="M8 7h9v9" />
+    </svg>
+  ),
   disponibilidad: (
     <svg {...svgBase}>
       <circle cx="12" cy="12" r="9" />
@@ -102,6 +109,9 @@ export const Sidebar = ({ abierto = false, alNavegar, onCerrarSesion }) => {
     .join(" ");
 
   const gruposVisibles = gruposDeRol(usuario?.rol);
+  const contadores = {
+    pendientesRecibidas: usePendientesRecibidas(usuario?.rol === "tutor"),
+  };
 
   return (
     <aside
@@ -153,6 +163,14 @@ export const Sidebar = ({ abierto = false, alNavegar, onCerrarSesion }) => {
                       {ICONOS[enlace.icono]}
                     </span>
                     <span>{enlace.etiqueta}</span>
+                    {enlace.contador && contadores[enlace.contador] > 0 && (
+                      <span
+                        className="ml-auto min-w-5 rounded-full bg-[#ffe4ed] px-1.5 py-[3px] text-center text-[10px] font-extrabold text-[#d8336d]"
+                        aria-label={`${contadores[enlace.contador]} pendientes`}
+                      >
+                        {contadores[enlace.contador]}
+                      </span>
+                    )}
                   </NavLink>
                 </li>
               ))}

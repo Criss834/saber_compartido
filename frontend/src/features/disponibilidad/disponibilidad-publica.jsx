@@ -6,6 +6,8 @@ import { DIAS_POR_SEMANA, sumarDias } from "./formato.js";
 
 // Calendario público del perfil del tutor (008): solo bloques libres y futuros.
 // Tiene su propia carga y error para no afectar al resto del perfil.
+// Con `onSeleccionar`, cada bloque libre se puede elegir para solicitarlo (010);
+// cambiar `version` vuelve a pedir los bloques (p. ej. tras un 409).
 
 const lunesDeBloque = (semanas, fecha) =>
   [...semanas].reverse().find((lunes) => lunes <= fecha) ?? semanas[0];
@@ -21,12 +23,12 @@ const diasDeSemana = (lunes, bloques) =>
     };
   });
 
-export const DisponibilidadPublica = ({ tutorId }) => {
+export const DisponibilidadPublica = ({ tutorId, version = 0, onSeleccionar, seleccionado = null }) => {
   const { fijarUsuario } = useAuth();
   const [intento, setIntento] = useState(0);
   const [terminado, setTerminado] = useState(null);
   const [semanaElegida, setSemanaElegida] = useState(null);
-  const clave = `${tutorId}:${intento}`;
+  const clave = `${tutorId}:${intento}:${version}`;
   const cargando = terminado?.clave !== clave;
   const datos = cargando ? null : terminado?.datos;
   const error = cargando ? null : terminado?.error;
@@ -118,7 +120,12 @@ export const DisponibilidadPublica = ({ tutorId }) => {
             : `${enLaSemana} ${enLaSemana === 1 ? "horario libre" : "horarios libres"}`}
         </span>
       </div>
-      <CalendarioSemanal dias={dias} modo="lectura" />
+      <CalendarioSemanal
+        dias={dias}
+        modo="lectura"
+        seleccionado={seleccionado}
+        onPulsarBloque={onSeleccionar ? (_fecha, bloque) => onSeleccionar(bloque) : undefined}
+      />
     </>
   );
 };
