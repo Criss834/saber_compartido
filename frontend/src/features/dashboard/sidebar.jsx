@@ -67,6 +67,12 @@ const ICONOS = {
       <path d="M4.5 20.5v-.7a5.8 5.8 0 0 1 5.8-5.8h3.4a5.8 5.8 0 0 1 5.8 5.8v.7" />
     </svg>
   ),
+  disponibilidad: (
+    <svg {...svgBase}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 7v5l3 2" />
+    </svg>
+  ),
   verificaciones: (
     <svg {...svgBase}>
       <path d="M9 11.5 11 13.5 15.5 9" />

@@ -73,8 +73,24 @@ const GRUPOS_ADMINISTRADOR = [
   },
 ];
 
-export const gruposDeRol = (rol) =>
-  rol === "administrador" ? GRUPOS_ADMINISTRADOR : GRUPOS_ESTUDIANTE;
+// El tutor conserva el menú del estudiante y suma su propio espacio (009).
+const GRUPO_TUTOR = {
+  etiqueta: "Mi espacio de tutor",
+  enlaces: [
+    {
+      ruta: "/dashboard/mi-disponibilidad",
+      etiqueta: "Mi disponibilidad",
+      icono: "disponibilidad",
+      implementado: true,
+    },
+  ],
+};
+
+export const gruposDeRol = (rol) => {
+  if (rol === "administrador") return GRUPOS_ADMINISTRADOR;
+  if (rol === "tutor") return [...GRUPOS_ESTUDIANTE, GRUPO_TUTOR];
+  return GRUPOS_ESTUDIANTE;
+};
 
 // Pantallas aún sin implementar. Las marcadas con `todosLosRoles` (Mi perfil,
 // Notificaciones) también son accesibles para el administrador.
@@ -82,7 +98,11 @@ export const PANTALLAS_PLACEHOLDER = GRUPOS_ESTUDIANTE.flatMap((grupo) =>
   grupo.enlaces.filter((enlace) => !enlace.inicio && !enlace.implementado),
 );
 
-const TODOS_LOS_ENLACES = [...GRUPOS_ESTUDIANTE, ...GRUPOS_ADMINISTRADOR].flatMap(
+const TODOS_LOS_ENLACES = [
+  ...GRUPOS_ESTUDIANTE,
+  GRUPO_TUTOR,
+  ...GRUPOS_ADMINISTRADOR,
+].flatMap(
   (grupo) => grupo.enlaces,
 );
 

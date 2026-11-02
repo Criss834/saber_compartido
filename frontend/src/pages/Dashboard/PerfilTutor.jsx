@@ -13,6 +13,7 @@ import {
   MarcaVerificado,
 } from "../../features/busqueda/tarjeta-tutor.jsx";
 import { formatearNota } from "../../features/busqueda/formato.js";
+import { DisponibilidadPublica } from "../../features/disponibilidad/disponibilidad-publica.jsx";
 
 const Panel = ({ titulo, children }) => (
   <section className="min-w-0 overflow-hidden rounded-card border border-[#eeeaf5] bg-white shadow-card">
@@ -224,6 +225,15 @@ export const PerfilTutor = () => {
             </p>
           </Panel>
         </div>
+      </div>
+
+      <div className="mt-[17px]">
+        <Panel titulo="Disponibilidad">
+          <p className="mb-[14px] mt-0 text-[10px] leading-[1.6] text-text-muted">
+            Horarios libres del tutor en las próximas semanas (hora de Colombia).
+          </p>
+          <DisponibilidadPublica tutorId={tutor.id} />
+        </Panel>
       </div>
     </>
   );
