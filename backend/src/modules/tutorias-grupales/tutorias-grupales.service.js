@@ -9,7 +9,7 @@ import {
   sumarDias,
 } from "../disponibilidad/fechas.js";
 import { SEMANAS_VENTANA } from "../disponibilidad/disponibilidad.constantes.js";
-import { HORA_FIN_MAXIMA } from "./tutorias-grupales.constantes.js";
+import { HORA_FIN_MAXIMA, MODALIDADES } from "./tutorias-grupales.constantes.js";
 import {
   horaDe,
   intervaloDeHoras,
@@ -51,6 +51,7 @@ const aVista = (sesion, ahora, { conTutor }) => {
     horaInicio: intervalo.horaInicio,
     horaFin: intervalo.horaFin,
     duracionMinutos: sesion.duracionMinutos,
+    modalidad: { clave: sesion.modalidad, etiqueta: MODALIDADES[sesion.modalidad] },
     cupo: sesion.cupo,
     inscritos: sesion.inscritos,
     disponibles: Math.max(sesion.cupo - sesion.inscritos, 0),
@@ -121,7 +122,7 @@ const buscarChoque = async (transaccion, tutorId, fecha, propuesta) => {
 
 export const crearSesion = async (tutorId, datos) => {
   const ahora = ahoraEnColombia();
-  const { titulo, materiaId, fecha, horaInicio, duracionMinutos, cupo, descripcion } = datos;
+  const { titulo, materiaId, fecha, horaInicio, duracionMinutos, modalidad, cupo, descripcion } = datos;
 
   const materias = await materiasAprobadasDeTutor(tutorId);
   if (!materias.some((materia) => materia.id === materiaId)) {
@@ -144,6 +145,7 @@ export const crearSesion = async (tutorId, datos) => {
       descripcion: descripcion ?? null,
       fechaHoraSesion: fechaHoraABd(fecha, horaInicio),
       duracionMinutos,
+      modalidad,
       cupo,
     });
     return creada.id;

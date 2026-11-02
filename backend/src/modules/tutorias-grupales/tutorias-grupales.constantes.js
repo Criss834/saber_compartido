@@ -2,6 +2,13 @@
 // duraciones son las del prototipo; las horas de inicio van cada 30 minutos.
 export const DURACIONES_MINUTOS = [60, 90, 120];
 
+// Medio de la reunión (coincide con el ENUM de `sesiones_grupales.modalidad`).
+export const MODALIDADES = {
+  meet: "Google Meet",
+  teams: "Microsoft Teams",
+  presencial: "Presencial",
+};
+
 export const CUPO_MINIMO = 2;
 export const CUPO_MAXIMO = 30;
 

@@ -93,6 +93,7 @@ model sesiones_grupales {
   descripcion                 String?                       @db.Text
   fechaHoraSesion             DateTime                      @map("fecha_hora_sesion") @db.DateTime(0)
   duracionMinutos             Int                           @default(90) @map("duracion_minutos") @db.UnsignedSmallInt
+  modalidad                   sesiones_grupales_modalidad   @default(presencial)
   cupo                        Int                           @db.UnsignedSmallInt
   estado                      sesiones_grupales_estado      @default(abierta)
   creadoEn                    DateTime                      @default(now()) @map("creado_en") @db.Timestamp(0)
@@ -233,4 +234,10 @@ enum solicitudes_tutoria_metodo_pago {
   transferencia
   nequi
   daviplata
+}
+
+enum sesiones_grupales_modalidad {
+  meet
+  teams
+  presencial
 }

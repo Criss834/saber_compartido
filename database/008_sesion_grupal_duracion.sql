@@ -11,7 +11,8 @@
 -- que existiera antes.
 --
 -- MySQL 8 no admite ADD COLUMN IF NOT EXISTS: el script se ejecuta una sola vez.
--- Va antes que `009_notificaciones_leidas.sql` (feature 013).
+-- Va antes que `009_sesion_grupal_modalidad.sql` (esta misma feature) y que
+-- `010_notificaciones_leidas.sql` (feature 013).
 -- ==============================================================================
 
 ALTER TABLE sesiones_grupales

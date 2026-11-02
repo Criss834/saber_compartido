@@ -6,6 +6,7 @@ import {
   DESCRIPCION_MAXIMA,
   DURACIONES_MINUTOS,
   HORAS_INICIO,
+  MODALIDADES,
   TITULO_MAXIMO,
   TITULO_MINIMO,
 } from "./tutorias-grupales.constantes.js";
@@ -35,6 +36,9 @@ export const esquemaCrearSesion = z.object({
   duracionMinutos: z.coerce
     .number({ error: "Elige una duración válida" })
     .refine((valor) => DURACIONES_MINUTOS.includes(valor), "La duración debe ser de 60, 90 o 120 minutos"),
+  modalidad: z.enum(Object.keys(MODALIDADES), {
+    error: "Elige el medio de la reunión: Google Meet, Microsoft Teams o presencial",
+  }),
   cupo: enteroEntre(CUPO_MINIMO, CUPO_MAXIMO, `El cupo debe ser un número entre ${CUPO_MINIMO} y ${CUPO_MAXIMO}`),
   descripcion: z.preprocess(
     vacioComoAusente,
