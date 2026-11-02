@@ -44,7 +44,13 @@ export const config = {
   },
   ia: {
     apiKey: process.env.GEMINI_API_KEY ?? "",
-    modelo: process.env.GEMINI_MODELO ?? "",
+    // Modelos en orden de preferencia; en el plan gratuito la cuota es por modelo,
+    // así que si uno se agota se usa el siguiente. Sin GEMINI_MODELOS se usa
+    // GEMINI_MODELO como lista de uno (compatibilidad con los .env anteriores).
+    modelos: (process.env.GEMINI_MODELOS ?? process.env.GEMINI_MODELO ?? "")
+      .split(",")
+      .map((modelo) => modelo.trim())
+      .filter(Boolean),
     timeoutMs: Number(process.env.GEMINI_TIMEOUT_MS ?? 60000),
   },
 };

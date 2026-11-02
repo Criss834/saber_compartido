@@ -31,6 +31,20 @@ const formatearFecha = (valor) => {
   return Number.isNaN(fecha.getTime()) ? "" : FECHA_LARGA.format(fecha);
 };
 
+const HORA = new Intl.DateTimeFormat("es-CO", {
+  hour: "numeric",
+  minute: "2-digit",
+  timeZone: "America/Bogota",
+});
+
+// Cuando todos los modelos de IA están sin cuota, el backend envía la hora en que
+// vuelve a haberla; se explica eso en lugar de un "no se pudo procesar" genérico.
+const mensajeCuotaAgotada = (iaDisponibleDesde) => {
+  const fecha = iaDisponibleDesde ? new Date(iaDisponibleDesde) : null;
+  if (!fecha || Number.isNaN(fecha.getTime())) return null;
+  return `La cuota gratuita de la IA está agotada; se reintentará automáticamente desde las ${HORA.format(fecha)} (hora de Colombia). Mientras tanto puedes revisar el certificado a mano.`;
+};
+
 const formatearFechaHora = (valor) => {
   if (valor === null || valor === undefined || valor === "") return "—";
   const fecha = new Date(valor);
@@ -149,6 +163,7 @@ export const VerificacionDetalle = () => {
       setMensajeAccion({
         tipo: "error",
         texto:
+          mensajeCuotaAgotada(respuesta.iaDisponibleDesde) ??
           "La IA no pudo procesar el certificado. Puedes reprocesarlo o revisarlo a mano.",
       });
     }
@@ -392,7 +407,8 @@ export const VerificacionDetalle = () => {
               </div>
             ) : !procesada ? (
               <p className="px-[15px] py-[25px] text-center text-[10px] leading-[1.6] text-text-muted">
-                Este certificado aún no ha sido procesado por la IA.
+                {mensajeCuotaAgotada(verificacion.iaDisponibleDesde) ??
+                  "Este certificado aún no ha sido procesado por la IA."}
               </p>
             ) : (
               <>
@@ -444,7 +460,8 @@ export const VerificacionDetalle = () => {
             <p className="m-0 text-[10px] leading-[1.6] text-text-muted">
               {procesando
                 ? "Las alertas aparecerán cuando la IA termine de leer el certificado."
-                : "Sin resultados de la IA: revisa el certificado a mano o reprocésalo."}
+                : (mensajeCuotaAgotada(verificacion.iaDisponibleDesde) ??
+                  "Sin resultados de la IA: revisa el certificado a mano o reprocésalo.")}
             </p>
           ) : verificacion.alertas.length === 0 ? (
             <div className="rounded-[10px] border border-[#d1f2dc] bg-status-success px-[15px] py-[13px] text-[10px] leading-[1.6] text-status-success-ink">

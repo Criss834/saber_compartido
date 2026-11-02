@@ -75,6 +75,8 @@ export const obtenerVerificacion = async (solicitudId) => {
     procesando: Boolean(
       documento?.archivoId && enProceso.has(documento.archivoId),
     ),
+    // Hora en que vuelve a haber cuota si TODOS los modelos están en pausa; si no, null.
+    iaDisponibleDesde: iaPausadaHasta()?.toISOString() ?? null,
     extraido: documento
       ? {
           nombre: documento.iaNombreExtraido,
@@ -267,7 +269,8 @@ export const iniciarBarridoPendientes = () => {
     });
   };
 
-  barrer();
+  // Sin pasada al arrancar: cada reinicio de `npm run dev --watch` gastaría una
+  // petición de la cuota. La primera pasada ocurre al cumplirse el intervalo.
   const intervalo = setInterval(barrer, INTERVALO_BARRIDO_MS);
   return () => clearInterval(intervalo);
 };
