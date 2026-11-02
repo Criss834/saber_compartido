@@ -38,26 +38,24 @@
 
 ## Pruebas / validación
 
-- [ ] Lint del backend: `npx oxlint src`. (`backend/`)
-- [ ] Lint del frontend: `npm run lint`. (`frontend/`)
-- [ ] Preparar datos de prueba: al menos 3 tutores con materias distintas y uno con una materia aprobada y otra pendiente, aprobándolos desde la cuenta de administrador, y algunas calificaciones de prueba respetando los constraints de `calificaciones`. (`database/`)
-- [ ] Con curl (`127.0.0.1:3000`): sin sesión las rutas devuelven 401, con un administrador devuelven 403 `ACCESO_DENEGADO`, y con sesión de estudiante `GET /api/busqueda/materias` solo trae materias con tutores aprobados. (`backend/`)
-- [ ] Con curl: buscar por nombre completo ("nombre apellido"), por solo una palabra, por materia, con tildes y sin ellas, y con mayúsculas. (`backend/`)
-- [ ] Con curl: `materiaId` válido filtra por esa materia, y valores inválidos (`materiaId=abc`, `filtro=otro`, `q` de más de 80 caracteres) devuelven el 400 de Zod. (`backend/`)
-- [ ] Con curl: los filtros "calificación 4.8 o más" y "promedio 4.5 o más" (con y sin materia) devuelven lo esperado, y el orden y el tope de 50 se respetan. (`backend/`)
-- [ ] Con curl: el usuario no aparece en sus propios resultados, y su propio perfil, el de un id inexistente y el de un tutor sin materias aprobadas devuelven el mismo 404. (`backend/`)
-- [ ] Comprobar que una materia pendiente o rechazada nunca aparece en tarjetas, perfil ni filtro, y que al aprobar una solicitud el tutor aparece de inmediato. (`backend/`)
-- [ ] Revisar las respuestas y confirmar que no contienen correo, cédula, documentos ni identificadores innecesarios. (`backend/`)
-- [ ] En el navegador: búsqueda por texto, filtros combinados, el estado en la URL al recargar, los tres estados vacíos, carga y error con "Reintentar", sesión expirada (401) y comparación visual con el prototipo en móvil y escritorio. (`frontend/`)
-- [ ] En el navegador: el buscador de la barra superior lleva a la pantalla con el texto aplicado, el administrador es redirigido y no ve el buscador. (`frontend/`)
-- [ ] Regresión: registro de tutor, verificación del administrador, login, Google, logout y Resumen siguen funcionando. (`frontend/`, `backend/`)
+- [x] Lint del backend: `npx oxlint src`. (`backend/`) — 0 errores (solo los 2 warnings previos).
+- [x] Lint del frontend: `npm run lint`. (`frontend/`) — 0 errores (solo warnings previos de fast refresh en `auth-context.jsx` y `avatar.jsx`).
+- [x] Preparar datos de prueba: al menos 3 tutores con materias distintas y uno con una materia aprobada y otra pendiente, aprobándolos desde la cuenta de administrador, y algunas calificaciones de prueba respetando los constraints de `calificaciones`. (`database/`) — cuentas desechables `prueba008.*` (Sofía Ramírez Peñaloza: Bases de datos 4.90 + Programación web 4.40; Andrés Ochoa: Cálculo 4.30 aprobada + Algorítmica 4.75 pendiente), aprobadas con el endpoint de administrador; 9 calificaciones con su tutoría `completada` y su bloque de disponibilidad (Sofía 5.00, Andrés 4.80, Miguel 4.50, Valeria sin calificaciones). Se borran con un script de limpieza al cerrar.
+- [x] Con curl (`127.0.0.1:3000`): sin sesión las rutas devuelven 401, con un administrador devuelven 403 `ACCESO_DENEGADO`, y con sesión de estudiante `GET /api/busqueda/materias` solo trae materias con tutores aprobados. (`backend/`) — las 3 rutas: 401 sin sesión, 403 `ACCESO_DENEGADO` al admin y 200 al estudiante; `/materias` trae 5 (Álgebra, Bases, Cálculo, Estadística, Programación web) y omite las que solo tienen pendientes.
+- [x] Con curl: buscar por nombre completo ("nombre apellido"), por solo una palabra, por materia, con tildes y sin ellas, y con mayúsculas. (`backend/`) — "Sofía Ramírez", "sofia ramirez", "PEÑALOZA", "Andrés", "Ochoa Andres" (orden invertido), "bases de datos", "algebra" y "calculo valeria" encuentran al tutor correcto; "Sofía Cálculo" no devuelve nada, porque cada palabra debe coincidir. Nota: la colación trata la ñ como n ("penaloza" encuentra "Peñaloza").
+- [x] Con curl: `materiaId` válido filtra por esa materia, y valores inválidos (`materiaId=abc`, `filtro=otro`, `q` de más de 80 caracteres) devuelven el 400 de Zod. (`backend/`) — `materiaId=4` → Andrés y Valeria; `materiaId=21` (solo pendiente) → vacío; `abc`, `-3`, `filtro=otro` y `q` de 81 caracteres → 400 de Zod.
+- [x] Con curl: los filtros "calificación 4.8 o más" y "promedio 4.5 o más" (con y sin materia) devuelven lo esperado, y el orden y el tope de 50 se respetan. (`backend/`) — ≥4.8 → Sofía (5.00) y Andrés (4.80, justo en el límite); promedio ≥4.5 sin materia excluye a Andrés (4.30); con materia 26 (Sofía 4.40) → vacío, y con materia 25 (4.90) → Sofía. Orden ★ 5.0 > 4.8 > 4.5 > sin calificación. Con 54 tutores devuelve 50 y `total` 54; los que no tienen calificación van ordenados por promedio.
+- [x] Con curl: el usuario no aparece en sus propios resultados, y su propio perfil, el de un id inexistente y el de un tutor sin materias aprobadas devuelven el mismo 404. (`backend/`) — Sofía no se ve a sí misma; su propio perfil, un id inexistente, una cuenta sin materias aprobadas y el admin devuelven el mismo 404 `TUTOR_NO_ENCONTRADO`.
+- [x] Comprobar que una materia pendiente o rechazada nunca aparece en tarjetas, perfil ni filtro, y que al aprobar una solicitud el tutor aparece de inmediato. (`backend/`) — la pendiente de Andrés no sale en las tarjetas, el perfil ni `/materias`, y la rechazada del usuario 56 tampoco; al aprobarla el admin, aparece en la siguiente búsqueda y en el filtro.
+- [x] Revisar las respuestas y confirmar que no contienen correo, cédula, documentos ni identificadores innecesarios. (`backend/`) — claves expuestas: `total, tutores, id, nombreCompleto, iniciales, calificacion{promedio, cantidad}, descripcion, materias{id, nombre, promedio}`; sin correo, estado, documentos, revisor ni rol.
+- [ ] En el navegador: búsqueda por texto, filtros combinados, el estado en la URL al recargar, los tres estados vacíos, carga y error con "Reintentar", sesión expirada (401) y comparación visual con el prototipo en móvil y escritorio. (`frontend/`) — **Pendiente:** prueba manual. Los datos `prueba008` siguen cargados para hacerla (Sofía ★5.0, Andrés ★4.8, Miguel ★4.5, Valeria sin calificaciones).
+- [ ] En el navegador: el buscador de la barra superior lleva a la pantalla con el texto aplicado, el administrador es redirigido y no ve el buscador. (`frontend/`) — **Pendiente:** prueba manual.
+- [ ] Regresión: registro de tutor, verificación del administrador, login, Google, logout y Resumen siguen funcionando. (`frontend/`, `backend/`) — **Pendiente:** backend verificado por curl (006: listar 200 y POST sin archivo → `ARCHIVO_REQUERIDO`, admin → 403; 007: lista, detalle y certificado 200, estudiante → 403; `/yo`, `/dashboard/resumen`, `/materias` 200; login incorrecto → 401; Google → 302; logout → 200). Falta el recorrido en el navegador.
 
 ## Cierre
 
-- [ ] Revisar el diff completo y confirmar que no hay `console.log`, secretos ni datos de prueba. (`./`)
-- [ ] Confirmar que `package.json` y el lock no cambian. (`backend/package.json`)
-- [ ] Hacer commit con un mensaje claro y `git push`. (`./`)
-- [ ] Escribir el resumen de la feature para la siguiente sesión. (`features/008-buscar-tutor/`)
+- [x] Revisar el diff completo y confirmar que no hay `console.log`, secretos ni datos de prueba. (`./`)
+- [x] Confirmar que `package.json` y el lock no cambian. (`backend/package.json`)
 
 ## Mantenimiento
 
