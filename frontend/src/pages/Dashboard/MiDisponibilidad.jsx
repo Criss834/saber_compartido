@@ -13,6 +13,8 @@ import { claveBloque, rangoSemana } from "../../features/disponibilidad/formato.
 
 const MENSAJE_CONFIRMADO =
   "No puedes modificar ni eliminar un bloque con una tutoría confirmada";
+const MENSAJE_SESION_GRUPAL =
+  "En este horario tienes una sesión grupal publicada. Para ofrecerlo como tutoría individual, elige otra hora.";
 const MENSAJE_PENDIENTE =
   "Este bloque tiene una solicitud pendiente. Respóndela en “Solicitudes recibidas” antes de cambiarlo.";
 
@@ -138,7 +140,7 @@ export const MiDisponibilidad = () => {
   );
 
   const conteo = useMemo(() => {
-    const total = { disponible: 0, confirmado: 0, pendiente: 0, no_disponible: 0, pasado: 0 };
+    const total = { disponible: 0, confirmado: 0, pendiente: 0, sesion_grupal: 0, no_disponible: 0, pasado: 0 };
     for (const dia of dias) for (const bloque of dia.bloques) total[bloque.estado] += 1;
     return total;
   }, [dias]);
@@ -152,6 +154,10 @@ export const MiDisponibilidad = () => {
       }
       if (bloque.estado === "pendiente") {
         setAviso({ tipo: "error", texto: MENSAJE_PENDIENTE });
+        return;
+      }
+      if (bloque.estado === "sesion_grupal") {
+        setAviso({ tipo: "error", texto: MENSAJE_SESION_GRUPAL });
         return;
       }
       if (bloque.estado === "pasado") return;
@@ -395,6 +401,7 @@ export const MiDisponibilidad = () => {
             <Contador etiqueta="Bloques disponibles" valor={conteo.disponible} />
             <Contador etiqueta="Tutorías confirmadas" valor={conteo.confirmado} />
             <Contador etiqueta="Solicitudes pendientes" valor={conteo.pendiente} />
+            <Contador etiqueta="Horas con sesión grupal" valor={conteo.sesion_grupal} />
             <Contador etiqueta="No disponibles" valor={conteo.no_disponible} />
             <p className="mb-0 mt-3 text-[10px] leading-[1.6] text-text-muted">
               {hayCambios

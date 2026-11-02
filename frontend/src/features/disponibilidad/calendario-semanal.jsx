@@ -3,7 +3,8 @@ import { diaCorto, diaLargo, horaCorta, horaLarga, numeroDia, rangoSemana } from
 // Calendario de lunes a sábado con bloques de una hora, según la vista
 // "Mi disponibilidad" del prototipo. Dos modos:
 // - "edicion": cada bloque es un botón (disponible ↔ no disponible); el confirmado
-//   y el que tiene una solicitud pendiente no cambian, y el pasado está deshabilitado.
+//   el que tiene una solicitud pendiente y el que coincide con una sesión grupal (011)
+//   no cambian, y el pasado está deshabilitado.
 // - "lectura": calendario público, solo muestra los bloques disponibles. Si se
 //   pasa `onPulsarBloque`, cada bloque libre se puede seleccionar (010).
 
@@ -11,6 +12,7 @@ const ETIQUETA_ESTADO = {
   disponible: "Disponible",
   confirmado: "Con tutoría confirmada",
   pendiente: "Con solicitud pendiente",
+  sesion_grupal: "Sesión grupal",
   no_disponible: "No disponible",
   pasado: "Ya pasó",
 };
@@ -19,6 +21,7 @@ const CLASE_ESTADO = {
   disponible: "bg-status-success text-status-success-ink",
   confirmado: "bg-[#f0eaff] text-[#7041bd]",
   pendiente: "bg-status-pending text-status-pending-ink",
+  sesion_grupal: "bg-status-info text-status-info-ink",
   no_disponible: "bg-[#f5f4f7] text-[#b1aaba]",
   pasado: "cursor-not-allowed bg-[#faf9fb] text-[#d6d2dc] line-through",
 };
@@ -27,6 +30,7 @@ const LEYENDA_EDICION = [
   ["#b9edc9", "Disponible"],
   ["#d8c6ff", "Con tutoría confirmada"],
   ["#ffe3a3", "Con solicitud pendiente"],
+  ["#bfdbfe", "Sesión grupal"],
   ["#e9e6ed", "No disponible"],
 ];
 

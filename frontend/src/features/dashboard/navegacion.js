@@ -24,6 +24,7 @@ const GRUPOS_ESTUDIANTE = [
         ruta: "/dashboard/tutorias-grupales",
         etiqueta: "Tutorías grupales",
         icono: "grupal",
+        implementado: true,
       },
       {
         ruta: "/dashboard/notificaciones",
@@ -89,6 +90,12 @@ const GRUPO_TUTOR = {
       ruta: "/dashboard/mi-disponibilidad",
       etiqueta: "Mi disponibilidad",
       icono: "disponibilidad",
+      implementado: true,
+    },
+    {
+      ruta: "/dashboard/sesiones-grupales",
+      etiqueta: "Sesiones grupales",
+      icono: "grupal",
       implementado: true,
     },
   ],

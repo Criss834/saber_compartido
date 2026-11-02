@@ -26,7 +26,8 @@ Solo falta la **duración**, que pide el prototipo y que hace falta para saber c
 1. **Esquema.** Crear `database/008_sesion_grupal_duracion.sql`:
    - `ALTER TABLE sesiones_grupales ADD COLUMN duracion_minutos SMALLINT UNSIGNED NOT NULL DEFAULT 90 AFTER fecha_hora_sesion`.
    - Ejecutarlo en Docker y regenerar con `prisma db pull` y `prisma generate`, con el campo `duracionMinutos` y su `@map`.
-   - La 013 pasa a usar el script 009.
+   - **Añadido después:** `database/009_sesion_grupal_modalidad.sql` crea `modalidad ENUM('meet','teams','presencial')` (ver "Modalidad de la reunión" abajo).
+   - La 013 pasa a usar el script 010.
 
 2. **Módulo `backend/src/modules/tutorias-grupales/`** (nombre del tech-stack), con el patrón routes → validar → controller → service → repository.
    - `tutorias-grupales.constantes.js`:
@@ -99,6 +100,7 @@ Solo falta la **duración**, que pide el prototipo y que hace falta para saber c
 
 ## Decisiones
 
+- **Modalidad de la reunión** (añadida después de la sección Frontend, a pedido del equipo): columna `modalidad ENUM('meet','teams','presencial')` en un script nuevo (`009_sesion_grupal_modalidad.sql`), porque el `008` ya estaba en un commit. Es obligatoria en el formulario y en Zod, la respuesta la devuelve como `{clave, etiqueta}` y la tarjeta del estudiante la muestra con un texto de apoyo. El enlace o el lugar exacto quedan fuera de alcance.
 - **Duración como columna nueva**, con valores fijos de 60, 90 o 120 minutos como en el prototipo. Sin ella no se puede mostrar la hora de fin ni detectar choques.
 - **Horas cada 30 minutos de 7:00 a. m. a 8:00 p. m.**, distintas de los bloques de una hora de la 009. Una sesión grupal no es un bloque de disponibilidad: el tutor elige libremente dentro de un horario razonable.
 - **Una sola agenda por tutor.** Se rechaza cualquier cruce con sesiones, tutorías individuales y bloques publicados. El tutor resuelve el cruce con los bloques en "Mi disponibilidad" en vez de que el sistema los quite por su cuenta.

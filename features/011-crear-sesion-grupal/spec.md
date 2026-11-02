@@ -6,6 +6,7 @@ Permite que un tutor verificado cree una sesión de tutoría grupal para atender
 - El nombre de la sesión.
 - La materia (una de las que tiene aprobadas).
 - La fecha, la hora de inicio y la duración.
+- El medio de la reunión: Google Meet, Microsoft Teams o presencial.
 - El número máximo de cupos.
 - Una descripción opcional.
 
@@ -27,6 +28,7 @@ La misión incluye tutorías grupales con cupo limitado además de las 1 a 1 (01
   - Fecha: obligatoria, desde hoy y hasta 4 semanas después.
   - Hora de inicio: obligatoria, en punto o y media, de 7:00 a. m. a 8:00 p. m.
   - Duración: 60, 90 o 120 minutos (90 por defecto). La sesión tiene que terminar a las 9:00 p. m. como muy tarde.
+  - Medio de la reunión: obligatorio, entre "Google Meet", "Microsoft Teams" y "Presencial" (sin valor por defecto).
   - Cupo máximo: obligatorio, entero de 2 a 30 (8 por defecto).
   - Descripción: opcional, hasta 1000 caracteres, con contador.
 
@@ -39,11 +41,12 @@ La misión incluye tutorías grupales con cupo limitado además de las 1 a 1 (01
   - Una sesión que se cruza con otra sesión grupal suya `abierta` o `llena`, con una tutoría individual `pendiente` o `aceptada`, o con bloques publicados en "Mi disponibilidad": 409 `CHOQUE_DE_HORARIO`, con un mensaje que dice con qué se cruza. Si choca con bloques de disponibilidad, el mensaje indica quitarlos primero en "Mi disponibilidad".
 
 ### 2. Publicada como disponible para inscripción
-- [ ] "Mis sesiones publicadas" lista las sesiones del tutor: nombre, materia, fecha, hora de inicio y fin, cupos ocupados sobre el total (por ejemplo, "0 / 8 cupos") y estado ("Abierta", "Llena", "Cancelada" o "Completada"). Primero las próximas, de la más cercana a la más lejana, y después las pasadas. Estado vacío "Tu próxima sesión empieza aquí".
+- [ ] "Mis sesiones publicadas" lista las sesiones del tutor: nombre, materia, fecha, hora de inicio y fin, medio de la reunión, cupos ocupados sobre el total (por ejemplo, "0 / 8 cupos") y estado ("Abierta", "Llena", "Cancelada" o "Completada"). Primero las próximas, de la más cercana a la más lejana, y después las pasadas. Estado vacío "Tu próxima sesión empieza aquí".
 - [ ] La entrada "Tutorías grupales" del estudiante deja de ser un placeholder. Muestra las sesiones `abiertas` y futuras de todos los tutores verificados, excepto las del propio usuario. Cada tarjeta, como en el prototipo, muestra:
   - Nombre y materia.
   - El tutor, con enlace a su perfil.
   - La fecha y la hora, y la duración.
+  - El medio de la reunión ("Google Meet" o "Microsoft Teams" con "Reunión en línea. El tutor compartirá el enlace.", o "Presencial" con "En la universidad. El tutor indicará el lugar.").
   - Los cupos disponibles con la barra de ocupación.
   - La descripción.
   - El botón "Inscribirme" deshabilitado con la etiqueta "Próximamente" hasta la 012.
@@ -56,7 +59,7 @@ La misión incluye tutorías grupales con cupo limitado además de las 1 a 1 (01
 ### Datos y seguridad
 - [ ] El `tutorId` sale siempre de la sesión, nunca del cuerpo.
 - [ ] Crear y listar las propias sesiones solo lo puede hacer el rol `tutor`. Ver "Tutorías grupales" lo pueden hacer los roles `estudiante` y `tutor`. El administrador recibe 403 `ACCESO_DENEGADO`.
-- [ ] El cuerpo se valida con Zod (textos recortados, fecha `AAAA-MM-DD`, hora `HH:MM`, duración y cupo del catálogo y del rango). Los inválidos devuelven el 400 de Zod.
+- [ ] El cuerpo se valida con Zod (textos recortados, fecha `AAAA-MM-DD`, hora `HH:MM`, duración, medio de la reunión y cupo del catálogo y del rango). Los inválidos devuelven el 400 de Zod.
 - [ ] El listado público no expone correos, cédulas ni la lista de inscritos; solo el nombre del tutor, su id para enlazar el perfil y los cupos ocupados.
 - [ ] Las pantallas siguen el prototipo `Saber-Compartido-Dashboard` (vistas "Sesiones grupales" del tutor y "Tutorías grupales" del estudiante), son usables en móvil y respetan los tokens visuales del tech-stack.
 - [ ] Lint sin errores y sin dependencias nuevas que no estén justificadas en el plan.
@@ -66,7 +69,7 @@ La misión incluye tutorías grupales con cupo limitado además de las 1 a 1 (01
 - Inscribirse, cancelar la inscripción y el paso de `abierta` a `llena` al completarse el cupo (012, GRU-INS-001).
 - Editar o cancelar una sesión publicada, y marcarla como `completada`.
 - Notificaciones de sesiones grupales (013) y correos.
-- Modalidad (presencial / en línea), lugar o enlace de la reunión.
+- El enlace de la reunión (Meet o Teams) y el lugar exacto de la sesión presencial: solo se registra el medio.
 - Sesiones recurrentes ("todos los martes").
 - Calificar sesiones grupales (CAL-TUT-001).
 - Filtros y búsqueda en "Tutorías grupales".
