@@ -52,9 +52,9 @@
 
 ## Cierre
 
-- [ ] Borrar los datos de prueba `prueba009.*` con el script de limpieza. (`database/`)
-- [ ] Revisar el diff completo y confirmar que no hay `console.log`, secretos ni datos de prueba. (`./`)
-- [ ] Confirmar que `package.json` y el lock no cambian. (`backend/package.json`, `frontend/package.json`)
+- [x] Borrar los datos de prueba `prueba009.*` con el script de limpieza. (`database/`) — borradas las 4 cuentas `prueba009.*`, 2 solicitudes y 7 bloques; quedan 0 cuentas `prueba009` y 0 solicitudes. Se conservan los 5 bloques antiguos de Valeria y 3 bloques de Miguel del 2 nov, que no son de esta prueba.
+- [x] Revisar el diff completo y confirmar que no hay `console.log`, secretos ni datos de prueba. (`./`) — `git diff 64d7947..HEAD` (22 archivos): sin `console.log`, `debugger`, claves, contraseñas, `localhost` ni datos `prueba00*`.
+- [x] Confirmar que `package.json` y el lock no cambian. (`backend/package.json`, `frontend/package.json`) — ningún `package.json` ni lock cambió desde 64d7947; sin dependencias nuevas.
 
 ## Mantenimiento
 

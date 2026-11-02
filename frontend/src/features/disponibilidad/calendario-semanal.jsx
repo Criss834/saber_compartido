@@ -8,7 +8,7 @@ import { diaCorto, diaLargo, horaCorta, horaLarga, numeroDia, rangoSemana } from
 
 const ETIQUETA_ESTADO = {
   disponible: "Disponible",
-  confirmado: "Tutoría confirmada",
+  confirmado: "Con tutoría confirmada",
   no_disponible: "No disponible",
   pasado: "Ya pasó",
 };
