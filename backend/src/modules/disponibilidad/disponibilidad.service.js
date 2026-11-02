@@ -32,13 +32,12 @@ const formatoDia = new Intl.DateTimeFormat("es-CO", {
   month: "long",
 });
 
-// "martes 4 de noviembre a las 3:00 p. m." (hora de Colombia).
 const describirBloque = ({ fecha, horaInicio }) => {
   const [horas, minutos] = horaInicio.split(":").map(Number);
   const hora12 = horas % 12 === 0 ? 12 : horas % 12;
   const sufijo = horas < 12 ? "a. m." : horas === 12 ? "m." : "p. m.";
   const dia = formatoDia.format(new Date(`${fecha}T12:00:00Z`)).replace(",", "");
-  return `${dia} a las ${hora12}:${String(minutos).padStart(2, "0")} ${sufijo}`;
+  return `${dia} ${hora12 === 1 ? "a la" : "a las"} ${hora12}:${String(minutos).padStart(2, "0")} ${sufijo}`;
 };
 
 const semanaFueraDeRango = () =>
