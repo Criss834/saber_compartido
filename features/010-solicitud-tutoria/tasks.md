@@ -64,9 +64,9 @@
 
 ## Cierre
 
-- [ ] Borrar los datos de prueba `prueba010.*` con el script de limpieza. (`database/`)
-- [ ] Revisar el diff completo y confirmar que no hay `console.log`, secretos ni datos de prueba. (`./`)
-- [x] Confirmar que `package.json` y el lock no cambian. (`backend/package.json`, `frontend/package.json`)
+- [x] Borrar los datos de prueba `prueba010.*` con el script de limpieza. (`database/`) — borradas las 5 cuentas `prueba010.*` con sus 7 solicitudes y 9 bloques; no quedan cuentas `prueba009`, `prueba010` ni de la prueba de humo. Se conservan las 3 solicitudes del usuario 117 a Miguel (61), que vienen de la prueba manual. Los procesos de prueba (backend en el puerto 3001 y SMTP local en el 2525) quedaron detenidos.
+- [x] Revisar el diff completo y confirmar que no hay `console.log`, secretos ni datos de prueba. (`./`) — `git diff 5555134` (37 archivos, sin contar `features/`): ningún `debugger`, clave, contraseña, puerto de prueba (3001, 2525) ni dato `prueba0*`. El único `console.error` nuevo es el log de fallo de correo, que registra solo la acción, el id de la solicitud y el código. `no-responder@localhost` es el mismo remitente por defecto que ya usaba el correo de verificación.
+- [x] Confirmar que `package.json` y el lock no cambian. (`backend/package.json`, `frontend/package.json`) — ningún `package.json` ni lock cambió desde 5555134; sin dependencias nuevas.
 
 ## Mantenimiento
 
