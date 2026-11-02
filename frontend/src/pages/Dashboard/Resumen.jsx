@@ -186,7 +186,7 @@ const FilaTutoria = ({ tutoria }) => {
       </div>
 
       <span
-        className={`rounded-full px-2 py-[5px] text-[9px] font-bold max-[650px]:col-start-2 max-[650px]:mt-2 ${
+        className={`w-fit justify-self-start whitespace-nowrap rounded-full px-2 py-[5px] text-[9px] font-bold max-[650px]:col-start-2 max-[650px]:mt-2 min-[651px]:justify-self-end ${
           ESTILOS_BADGE[tutoria.estado] ?? "bg-status-neutral text-status-neutral-ink"
         }`}
       >
@@ -375,7 +375,7 @@ export const Resumen = () => {
                 subtitulo="Tus siguientes espacios de aprendizaje"
                 accion={
                   <AccionPanel to="/dashboard/mis-tutorias">
-                    Ver todas →
+                    Ver todas
                   </AccionPanel>
                 }
               >
@@ -404,7 +404,7 @@ export const Resumen = () => {
                 titulo="Tutores recomendados"
                 accion={
                   <AccionPanel to="/dashboard/buscar-tutores">
-                    Explorar todos →
+                    Explorar todos
                   </AccionPanel>
                 }
               >
