@@ -50,4 +50,8 @@ export const esquemaCrearSesion = z.object({
   ),
 });
 
+export const esquemaIdSesion = z.object({
+  id: enteroEntre(1, Number.MAX_SAFE_INTEGER, "El identificador debe ser un entero positivo"),
+});
+
 export default esquemaCrearSesion;

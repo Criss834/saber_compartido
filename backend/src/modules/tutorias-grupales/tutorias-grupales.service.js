@@ -1,4 +1,5 @@
 import { prisma } from "../../shared/prisma/client.js";
+import { esTutorVisible } from "../busqueda/busqueda.repository.js";
 import { errorNegocio } from "../../shared/errores/error-negocio.js";
 import {
   ahoraEnColombia,
@@ -9,7 +10,7 @@ import {
   sumarDias,
 } from "../disponibilidad/fechas.js";
 import { SEMANAS_VENTANA } from "../disponibilidad/disponibilidad.constantes.js";
-import { HORA_FIN_MAXIMA, MODALIDADES } from "./tutorias-grupales.constantes.js";
+import { HORA_FIN_MAXIMA, INSCRIPCION_CONFIRMADA, MODALIDADES } from "./tutorias-grupales.constantes.js";
 import {
   horaDe,
   intervaloDeHoras,
@@ -18,7 +19,16 @@ import {
   seCruzan,
 } from "./intervalos.js";
 import {
+  bloquearSesion,
   bloquearTutor,
+  buscarInscripcion,
+  confirmarInscripcion,
+  contarConfirmadas,
+  leerSesionParaInscribir,
+  listarInscritosDeSesion,
+  listarSesionesInscritas,
+  marcarLlena,
+  sesionesInscritasEnDia,
   bloquesActivosDeTutorEnDia,
   buscarSesion,
   insertarSesion,
@@ -57,6 +67,7 @@ const aVista = (sesion, ahora, { conTutor }) => {
     disponibles: Math.max(sesion.cupo - sesion.inscritos, 0),
     estado: sesion.estado,
     pasada: esPasado(intervalo.fecha, intervalo.horaInicio, ahora),
+    ...(sesion.inscrito === undefined ? {} : { inscrito: sesion.inscrito }),
     ...(conTutor
       ? {
           tutor: {
@@ -181,4 +192,115 @@ export const listarPublicas = async (usuarioId) => {
     desde: fechaHoraABd(ahora.fecha, ahora.hora),
   });
   return { sesiones: sesiones.map((sesion) => aVista(sesion, ahora, { conTutor: true })) };
+};
+
+// ---------------------------------------------------------------------------
+// Inscripción (012)
+// ---------------------------------------------------------------------------
+
+const noDisponible = () =>
+  errorNegocio("SESION_NO_DISPONIBLE", "Esta sesión ya no está disponible para inscripción", 409);
+
+// Primer choque de la agenda del usuario con la sesión (sesiones a las que ya
+// está inscrito, sesiones que publicó como tutor y tutorías individuales vivas).
+const buscarChoqueDeInscripcion = async (transaccion, usuarioId, sesion) => {
+  const propuesta = intervaloDeSesion(sesion);
+  const { fecha } = propuesta;
+
+  for (const otra of await sesionesInscritasEnDia(transaccion, usuarioId, fecha)) {
+    const intervalo = intervaloDeSesion(otra);
+    if (otra.id !== sesion.id && seCruzan(propuesta, intervalo)) {
+      return `Se cruza con la sesión grupal "${otra.titulo}" a la que ya estás inscrito (${rango(intervalo.inicio, intervalo.fin)})`;
+    }
+  }
+
+  for (const propia of await sesionesVivasDeTutorEnDia(transaccion, usuarioId, fecha)) {
+    const intervalo = intervaloDeSesion(propia);
+    if (seCruzan(propuesta, intervalo)) {
+      return `Se cruza con tu sesión grupal "${propia.titulo}" (${rango(intervalo.inicio, intervalo.fin)})`;
+    }
+  }
+
+  for (const solicitud of await solicitudesVivasDeUsuarioEnDia(transaccion, usuarioId, fecha)) {
+    const intervalo = intervaloDeHoras(solicitud.disponibilidad_tutores);
+    if (seCruzan(propuesta, intervalo)) {
+      const estado = solicitud.estado === "aceptada" ? "confirmada" : "pendiente";
+      const papel = solicitud.tutorId === usuarioId ? "que das" : "que recibes";
+      return `Se cruza con una tutoría individual ${estado} ${papel} de ${solicitud.materias.nombre} (${rango(intervalo.inicio, intervalo.fin)})`;
+    }
+  }
+
+  return null;
+};
+
+export const inscribirse = async (estudianteId, sesionId) => {
+  const ahora = ahoraEnColombia();
+
+  await prisma.$transaction(async (transaccion) => {
+    // Primero el bloqueo: lo que se cuenta después ya incluye las inscripciones
+    // que otra transacción haya confirmado sobre esta sesión.
+    await bloquearSesion(transaccion, sesionId);
+    const sesion = await leerSesionParaInscribir(transaccion, sesionId);
+    if (!sesion) throw noDisponible();
+
+    const intervalo = intervaloDeSesion(sesion);
+    const vigente =
+      (sesion.estado === "abierta" || sesion.estado === "llena") &&
+      !esPasado(intervalo.fecha, intervalo.horaInicio, ahora);
+    if (!vigente) throw noDisponible();
+
+    if (sesion.tutorId === estudianteId) {
+      throw errorNegocio("SESION_PROPIA", "No puedes inscribirte a una sesión que tú publicaste", 409);
+    }
+    if (!(await esTutorVisible({ tutorId: sesion.tutorId, usuarioId: estudianteId }))) {
+      throw noDisponible();
+    }
+
+    const existente = await buscarInscripcion(transaccion, sesionId, estudianteId);
+    if (existente?.estado === INSCRIPCION_CONFIRMADA) {
+      throw errorNegocio("YA_INSCRITO", "Ya estás inscrito en esta sesión", 409);
+    }
+
+    const confirmadas = await contarConfirmadas(transaccion, sesionId);
+    if (sesion.estado === "llena" || confirmadas >= sesion.cupo) {
+      throw errorNegocio("SESION_LLENA", "Esta sesión ya no tiene cupos disponibles", 409);
+    }
+
+    const conflicto = await buscarChoqueDeInscripcion(transaccion, estudianteId, sesion);
+    if (conflicto) throw choque(conflicto);
+
+    await confirmarInscripcion(transaccion, sesionId, estudianteId, existente);
+    if (confirmadas + 1 >= sesion.cupo) await marcarLlena(transaccion, sesionId);
+  });
+
+  const actualizada = await buscarSesion(sesionId);
+  return aVista({ ...actualizada, inscrito: true }, ahora, { conTutor: true });
+};
+
+export const listarMisInscripciones = async (usuarioId) => {
+  const ahora = ahoraEnColombia();
+  const sesiones = await listarSesionesInscritas({
+    usuarioId,
+    desde: fechaHoraABd(ahora.fecha, ahora.hora),
+  });
+  return {
+    sesiones: sesiones.map((sesion) => aVista({ ...sesion, inscrito: true }, ahora, { conTutor: true })),
+  };
+};
+
+// Solo el tutor de la sesión ve quiénes se inscribieron (con su correo, para
+// enviarles el enlace o el lugar). Mismo 404 si no existe o es de otro tutor.
+export const listarInscritos = async (tutorId, sesionId) => {
+  const sesion = await buscarSesion(sesionId);
+  if (!sesion || sesion.tutorId !== tutorId) {
+    throw errorNegocio("SESION_NO_ENCONTRADA", "No encontramos esta sesión", 404);
+  }
+  const filas = await listarInscritosDeSesion(sesionId);
+  return {
+    inscritos: filas.map((fila) => ({
+      nombreCompleto: `${fila.usuarios.nombres} ${fila.usuarios.apellidos}`.trim(),
+      correo: fila.usuarios.correoInstitucional,
+      inscritoEn: fila.inscritoEn,
+    })),
+  };
 };
