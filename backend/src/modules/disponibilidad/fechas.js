@@ -66,3 +66,32 @@ export const fechaDeBd = (valor) => valor.toISOString().slice(0, 10);
 export const horaDeBd = (valor) => valor.toISOString().slice(11, 16);
 export const fechaABd = (fecha) => new Date(`${fecha}T00:00:00Z`);
 export const horaABd = (hora) => new Date(`1970-01-01T${hora}:00Z`);
+
+const formatoDia = new Intl.DateTimeFormat("es-CO", {
+  timeZone: "UTC",
+  weekday: "long",
+  day: "numeric",
+  month: "long",
+});
+
+// "8:00 a. m.", "12:00 m.", "3:00 p. m."
+export const horaLegible = (hora) => {
+  const [horas, minutos] = hora.split(":").map(Number);
+  const hora12 = horas % 12 === 0 ? 12 : horas % 12;
+  const sufijo = horas < 12 ? "a. m." : horas === 12 ? "m." : "p. m.";
+  return `${hora12}:${String(minutos).padStart(2, "0")} ${sufijo}`;
+};
+
+// "martes 4 de noviembre"
+export const diaLegible = (fecha) =>
+  formatoDia.format(new Date(`${fecha}T12:00:00Z`)).replace(",", "");
+
+// "martes 4 de noviembre a las 3:00 p. m." o "… a la 1:00 p. m." (hora de Colombia).
+export const describirBloque = ({ fecha, horaInicio }) => {
+  const articulo = Number(horaInicio.slice(0, 2)) % 12 === 1 ? "a la" : "a las";
+  return `${diaLegible(fecha)} ${articulo} ${horaLegible(horaInicio)}`;
+};
+
+// Fecha y hora de una tutoría como DATETIME: hora de Colombia con la misma
+// convención UTC que DATE y TIME (se lee y escribe con getters UTC).
+export const fechaHoraABd = (fecha, hora) => new Date(`${fecha}T${hora}:00Z`);

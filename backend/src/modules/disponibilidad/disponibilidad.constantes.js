@@ -28,3 +28,7 @@ export const ZONA_HORARIA = "America/Bogota";
 
 // Una solicitud en este estado es una tutoría confirmada: su bloque no se toca.
 export const ESTADO_CONFIRMADA = "aceptada";
+
+// Una solicitud pendiente retiene el bloque (010): no aparece como libre y el
+// tutor no lo puede quitar hasta responderla.
+export const ESTADO_PENDIENTE = "pendiente";

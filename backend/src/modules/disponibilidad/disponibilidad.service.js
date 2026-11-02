@@ -9,6 +9,7 @@ import {
 } from "./disponibilidad.repository.js";
 import {
   ahoraEnColombia,
+  describirBloque,
   diaDeLaSemana,
   esPasado,
   horaFinDe,
@@ -24,21 +25,6 @@ const sabadoDe = (lunes) => sumarDias(lunes, DIAS_POR_SEMANA - 1);
 // Los bloques que no están en las horas permitidas (datos antiguos, p. ej. 14:30)
 // no se muestran ni se modifican.
 const estaAlineado = (bloque) => HORAS.has(bloque.horaInicio);
-
-const formatoDia = new Intl.DateTimeFormat("es-CO", {
-  timeZone: "UTC",
-  weekday: "long",
-  day: "numeric",
-  month: "long",
-});
-
-const describirBloque = ({ fecha, horaInicio }) => {
-  const [horas, minutos] = horaInicio.split(":").map(Number);
-  const hora12 = horas % 12 === 0 ? 12 : horas % 12;
-  const sufijo = horas < 12 ? "a. m." : horas === 12 ? "m." : "p. m.";
-  const dia = formatoDia.format(new Date(`${fecha}T12:00:00Z`)).replace(",", "");
-  return `${dia} ${hora12 === 1 ? "a la" : "a las"} ${hora12}:${String(minutos).padStart(2, "0")} ${sufijo}`;
-};
 
 const semanaFueraDeRango = () =>
   errorNegocio(
@@ -77,6 +63,7 @@ const armarSemana = ({ semana, semanas, filas, ahora }) => {
         const guardado = activos.get(clave(fecha, horaInicio));
         let estado = "no_disponible";
         if (guardado?.confirmado) estado = "confirmado";
+        else if (guardado?.pendiente) estado = "pendiente";
         else if (esPasado(fecha, horaInicio, ahora)) estado = "pasado";
         else if (guardado) estado = "disponible";
         return { horaInicio, horaFin: horaFinDe(horaInicio), estado };
@@ -162,6 +149,13 @@ export const guardarMiSemana = async (tutorId, { semana, bloques }) => {
           409,
         );
       }
+      if (fila.pendiente) {
+        throw errorNegocio(
+          "BLOQUE_CON_SOLICITUD_PENDIENTE",
+          `No puedes quitar el bloque del ${describirBloque(fila)}: tiene una solicitud pendiente. Respóndela primero en "Solicitudes recibidas"`,
+          409,
+        );
+      }
       if (fila.cantidadSolicitudes > 0) desactivarIds.push(fila.id);
       else borrarIds.push(fila.id);
     }
@@ -205,6 +199,8 @@ export const obtenerDisponibilidadPublica = async (usuarioId, tutorId) => {
     }
     vistos.add(llave);
     bloques.push({
+      // El id hace falta para solicitar el bloque (010).
+      id: fila.id,
       fecha: fila.fecha,
       horaInicio: fila.horaInicio,
       horaFin: horaFinDe(fila.horaInicio),

@@ -1,5 +1,5 @@
 import { prisma } from "../../shared/prisma/client.js";
-import { ESTADO_CONFIRMADA } from "./disponibilidad.constantes.js";
+import { ESTADO_CONFIRMADA, ESTADO_PENDIENTE } from "./disponibilidad.constantes.js";
 import { fechaABd, fechaDeBd, horaABd, horaDeBd } from "./fechas.js";
 
 // Las funciones reciben opcionalmente el cliente de una transacción, para que el
@@ -43,10 +43,13 @@ export const bloquesDeTutorEntre = async (
     confirmado: fila.solicitudes_tutoria.some(
       (solicitud) => solicitud.estado === ESTADO_CONFIRMADA,
     ),
+    pendiente: fila.solicitudes_tutoria.some(
+      (solicitud) => solicitud.estado === ESTADO_PENDIENTE,
+    ),
   }));
 };
 
-// Bloques activos y sin tutoría confirmada, para el calendario público. El filtro
+// Bloques activos y sin solicitud viva (pendiente o aceptada), para el calendario público. El filtro
 // de bloques pasados se hace en el service con la hora de Colombia.
 export const bloquesLibresDeTutor = async ({ tutorId, desde, hasta }) => {
   const filas = await prisma.disponibilidad_tutores.findMany({
@@ -54,7 +57,9 @@ export const bloquesLibresDeTutor = async ({ tutorId, desde, hasta }) => {
       tutorId,
       activo: true,
       fecha: entreFechas(desde, hasta),
-      solicitudes_tutoria: { none: { estado: ESTADO_CONFIRMADA } },
+      solicitudes_tutoria: {
+        none: { estado: { in: [ESTADO_PENDIENTE, ESTADO_CONFIRMADA] } },
+      },
     },
     select: { id: true, fecha: true, horaInicio: true, horaFin: true },
     orderBy: [{ fecha: "asc" }, { horaInicio: "asc" }],

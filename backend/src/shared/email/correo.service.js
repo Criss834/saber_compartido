@@ -45,3 +45,112 @@ export const enviarCorreoVerificacion = async ({ correo, nombres, token }) => {
     html: plantillaVerificacion(nombres, enlace),
   });
 };
+
+// ---------------------------------------------------------------------------
+// Notificaciones de solicitudes de tutoría (010). Los textos llegan ya
+// formateados (fecha y hora de Colombia, etiqueta del método de pago) y se
+// escapan aquí. El asunto no lleva datos personales.
+// ---------------------------------------------------------------------------
+
+const remitente = () =>
+  config.smtp.remitente || config.smtp.usuario || "no-responder@localhost";
+
+const filaDato = (etiqueta, valor) => `
+  <tr>
+    <td style="color: #6B7280; font-size: 13px; padding: 6px 12px 6px 0; vertical-align: top; white-space: nowrap;">${escaparHtml(etiqueta)}</td>
+    <td style="color: #1F1147; font-size: 14px; padding: 6px 0; font-weight: 600;">${escaparHtml(valor)}</td>
+  </tr>`;
+
+const plantillaSolicitud = ({ saludo, intro, datos, boton, enlace, pie }) => `
+  <div style="font-family: Inter, Arial, sans-serif; background: #F5F3FF; padding: 32px 16px;">
+    <div style="max-width: 520px; margin: 0 auto; background: #FFFFFF; border-radius: 16px; padding: 32px 28px; border: 1px solid #E5E7EB;">
+      <h1 style="font-family: Poppins, Arial, sans-serif; color: #7C3AED; font-size: 22px; margin: 0 0 16px;">
+        Saber Compartido
+      </h1>
+      <p style="color: #1F1147; font-size: 15px; line-height: 1.6; margin: 0 0 12px;">
+        Hola <strong>${escaparHtml(saludo)}</strong>,
+      </p>
+      <p style="color: #6B7280; font-size: 15px; line-height: 1.6; margin: 0 0 18px;">
+        ${escaparHtml(intro)}
+      </p>
+      <table style="border-collapse: collapse; margin: 0 0 24px;">
+        ${datos
+          .filter(([, valor]) => valor)
+          .map(([etiqueta, valor]) => filaDato(etiqueta, valor))
+          .join("")}
+      </table>
+      <p style="margin: 0 0 24px;">
+        <a href="${escaparHtml(enlace)}" style="background: #FF5A8C; color: #FFFFFF; text-decoration: none; padding: 12px 24px; border-radius: 12px; font-weight: 600; display: inline-block;">
+          ${escaparHtml(boton)}
+        </a>
+      </p>
+      <p style="color: #6B7280; font-size: 12px; line-height: 1.6; margin: 0;">
+        ${escaparHtml(pie)}
+      </p>
+    </div>
+  </div>
+`;
+
+const PIE_PAGO =
+  "Saber Compartido solo registra el método de pago preferido; no procesa pagos.";
+
+// Al tutor: nueva solicitud pendiente.
+export const enviarCorreoNuevaSolicitud = ({ correo, nombreTutor, nombreEstudiante, materia, horario, metodoPago, mensaje }) =>
+  transporte.sendMail({
+    from: remitente(),
+    to: correo,
+    subject: "Nueva solicitud de tutoría — Saber Compartido",
+    html: plantillaSolicitud({
+      saludo: nombreTutor,
+      intro: `${nombreEstudiante} te pidió una tutoría. Revísala y acéptala o recházala desde Saber Compartido.`,
+      datos: [
+        ["Materia", materia],
+        ["Horario", horario],
+        ["Método de pago", metodoPago],
+        ["Mensaje", mensaje],
+      ],
+      boton: "Ver solicitudes recibidas",
+      enlace: `${config.urlFrontend}/dashboard/solicitudes-recibidas`,
+      pie: PIE_PAGO,
+    }),
+  });
+
+// Al estudiante: el tutor aceptó.
+export const enviarCorreoSolicitudAceptada = ({ correo, nombreEstudiante, nombreTutor, correoTutor, materia, horario }) =>
+  transporte.sendMail({
+    from: remitente(),
+    to: correo,
+    subject: "Tu tutoría fue confirmada — Saber Compartido",
+    html: plantillaSolicitud({
+      saludo: nombreEstudiante,
+      intro: `${nombreTutor} aceptó tu solicitud. Escríbele a su correo institucional para coordinar la sesión.`,
+      datos: [
+        ["Materia", materia],
+        ["Horario", horario],
+        ["Correo del tutor", correoTutor],
+      ],
+      boton: "Ver mis tutorías",
+      enlace: `${config.urlFrontend}/dashboard/mis-tutorias`,
+      pie: PIE_PAGO,
+    }),
+  });
+
+// Al estudiante: el tutor rechazó; el horario queda libre.
+export const enviarCorreoSolicitudRechazada = ({ correo, nombreEstudiante, nombreTutor, materia, horario, motivo }) =>
+  transporte.sendMail({
+    from: remitente(),
+    to: correo,
+    subject: "Tu solicitud de tutoría fue rechazada — Saber Compartido",
+    html: plantillaSolicitud({
+      saludo: nombreEstudiante,
+      intro: `${nombreTutor} no puede atender tu solicitud. Puedes elegir otro horario o buscar otro tutor.`,
+      datos: [
+        ["Materia", materia],
+        ["Horario", horario],
+        ["Motivo", motivo],
+      ],
+      boton: "Buscar tutores",
+      enlace: `${config.urlFrontend}/dashboard/buscar-tutores`,
+      pie: "Este correo es informativo; no necesitas responderlo.",
+    }),
+  });

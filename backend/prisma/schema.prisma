@@ -47,7 +47,7 @@ model documentos_verificacion {
   id                        Int                   @id @default(autoincrement()) @db.UnsignedInt
   tutorMateriaId            Int                   @map("tutor_materia_id") @db.UnsignedInt
   urlArchivo                String                @map("url_archivo") @db.VarChar(500)
-  archivoId                Int?                  @map("archivo_id") @db.UnsignedInt
+  archivoId                 Int?                  @map("archivo_id") @db.UnsignedInt
   subidoEn                  DateTime              @default(now()) @map("subido_en") @db.Timestamp(0)
   iaNombreExtraido          String?               @map("ia_nombre_extraido") @db.VarChar(150)
   iaPrimerApellidoExtraido  String?               @map("ia_primer_apellido_extraido") @db.VarChar(150)
@@ -107,21 +107,24 @@ model sesiones_grupales {
 }
 
 model solicitudes_tutoria {
-  id                                                   Int                        @id @default(autoincrement()) @db.UnsignedInt
-  estudianteId                                         Int                        @map("estudiante_id") @db.UnsignedInt
-  tutorId                                              Int                        @map("tutor_id") @db.UnsignedInt
-  materiaId                                            Int                        @map("materia_id") @db.UnsignedInt
-  disponibilidadId                                     Int                        @map("disponibilidad_id") @db.UnsignedInt
-  fechaHoraSolicitud                                   DateTime                   @map("fecha_hora_solicitud") @db.DateTime(0)
-  mensaje                                              String?                    @db.Text
-  estado                                               solicitudes_tutoria_estado @default(pendiente)
-  creadoEn                                             DateTime                   @default(now()) @map("creado_en") @db.Timestamp(0)
-  actualizadoEn                                        DateTime                   @default(now()) @map("actualizado_en") @db.Timestamp(0)
+  id                                                   Int                             @id @default(autoincrement()) @db.UnsignedInt
+  estudianteId                                         Int                             @map("estudiante_id") @db.UnsignedInt
+  tutorId                                              Int                             @map("tutor_id") @db.UnsignedInt
+  materiaId                                            Int                             @map("materia_id") @db.UnsignedInt
+  disponibilidadId                                     Int                             @map("disponibilidad_id") @db.UnsignedInt
+  fechaHoraSolicitud                                   DateTime                        @map("fecha_hora_solicitud") @db.DateTime(0)
+  mensaje                                              String?                         @db.Text
+  metodoPago                                           solicitudes_tutoria_metodo_pago @map("metodo_pago")
+  estado                                               solicitudes_tutoria_estado      @default(pendiente)
+  motivoRechazo                                        String?                         @map("motivo_rechazo") @db.VarChar(300)
+  respondidoEn                                         DateTime?                       @map("respondido_en") @db.Timestamp(0)
+  creadoEn                                             DateTime                        @default(now()) @map("creado_en") @db.Timestamp(0)
+  actualizadoEn                                        DateTime                        @default(now()) @map("actualizado_en") @db.Timestamp(0)
   calificaciones                                       calificaciones[]
-  disponibilidad_tutores                               disponibilidad_tutores     @relation(fields: [disponibilidadId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_st_disponibilidad")
-  usuarios_solicitudes_tutoria_estudiante_idTousuarios usuarios                   @relation("solicitudes_tutoria_estudiante_idTousuarios", fields: [estudianteId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_st_estudiante")
-  materias                                             materias                   @relation(fields: [materiaId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_st_materia")
-  usuarios_solicitudes_tutoria_tutor_idTousuarios      usuarios                   @relation("solicitudes_tutoria_tutor_idTousuarios", fields: [tutorId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_st_tutor")
+  disponibilidad_tutores                               disponibilidad_tutores          @relation(fields: [disponibilidadId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_st_disponibilidad")
+  usuarios_solicitudes_tutoria_estudiante_idTousuarios usuarios                        @relation("solicitudes_tutoria_estudiante_idTousuarios", fields: [estudianteId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_st_estudiante")
+  materias                                             materias                        @relation(fields: [materiaId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_st_materia")
+  usuarios_solicitudes_tutoria_tutor_idTousuarios      usuarios                        @relation("solicitudes_tutoria_tutor_idTousuarios", fields: [tutorId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_st_tutor")
 
   @@index([estudianteId], map: "fk_st_estudiante")
   @@index([materiaId], map: "fk_st_materia")
@@ -129,6 +132,7 @@ model solicitudes_tutoria {
   @@index([estado], map: "idx_solicitudes_tutoria_estado")
   @@index([fechaHoraSolicitud], map: "idx_solicitudes_tutoria_fecha")
   @@index([disponibilidadId], map: "idx_st_disponibilidad")
+  @@index([disponibilidadId, estado], map: "idx_st_disponibilidad_estado")
 }
 
 model tutores_materias {
@@ -221,4 +225,11 @@ enum solicitudes_tutoria_estado {
   rechazada
   completada
   cancelada
+}
+
+enum solicitudes_tutoria_metodo_pago {
+  efectivo
+  transferencia
+  nequi
+  daviplata
 }
