@@ -129,3 +129,14 @@ export const buscarTutorPorId = async ({ tutorId, usuarioId }) => {
   });
   return usuario ? aTutor(usuario) : null;
 };
+
+// Misma regla que buscarTutorPorId, sin cargar el perfil. La usa el calendario
+// público de disponibilidad (009).
+export const esTutorVisible = async ({ tutorId, usuarioId }) => {
+  if (tutorId === usuarioId) return false;
+  const usuario = await prisma.usuarios.findFirst({
+    where: { id: tutorId, ...tieneMateriaAprobada() },
+    select: { id: true },
+  });
+  return Boolean(usuario);
+};

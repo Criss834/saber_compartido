@@ -8,6 +8,7 @@ import materiasRoutes from "./modules/materias/materias.routes.js";
 import tutoresRoutes from "./modules/tutores/tutores.routes.js";
 import adminVerificacionRoutes from "./modules/tutores/verificacion/verificacion.routes.js";
 import busquedaRoutes from "./modules/busqueda/busqueda.routes.js";
+import disponibilidadRoutes from "./modules/disponibilidad/disponibilidad.routes.js";
 import { iniciarBarridoPendientes } from "./modules/tutores/verificacion/verificacion.service.js";
 import { errorHandler } from "./shared/middlewares/errorHandler.js";
 
@@ -21,6 +22,7 @@ app.use("/api/materias", materiasRoutes);
 app.use("/api/tutores", tutoresRoutes);
 app.use("/api/admin", adminVerificacionRoutes);
 app.use("/api/busqueda", busquedaRoutes);
+app.use("/api/disponibilidad", disponibilidadRoutes);
 
 transporte.verify()
   .then(() => console.log("SMTP conectado correctamente"))
