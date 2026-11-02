@@ -1,6 +1,8 @@
 import { prisma } from "../../shared/prisma/client.js";
 import { errorNegocio } from "../../shared/errores/error-negocio.js";
 import { esTutorVisible } from "../busqueda/busqueda.repository.js";
+import { sesionesVivasDeTutorEntre } from "../tutorias-grupales/tutorias-grupales.repository.js";
+import { intervaloDeSesion, minutosDe, seCruzan } from "../tutorias-grupales/intervalos.js";
 import { DIAS_POR_SEMANA, HORAS_PERMITIDAS, ZONA_HORARIA } from "./disponibilidad.constantes.js";
 import {
   aplicarCambiosDeSemana,
@@ -53,7 +55,24 @@ const indexarActivos = (filas) => {
   return activos;
 };
 
-const armarSemana = ({ semana, semanas, filas, ahora }) => {
+// Sesiones grupales vivas del tutor (011) como intervalos por fecha.
+const sesionesPorFecha = async (tutorId, desde, hasta) => {
+  const porFecha = new Map();
+  for (const sesion of await sesionesVivasDeTutorEntre(tutorId, desde, hasta)) {
+    const intervalo = { ...intervaloDeSesion(sesion), titulo: sesion.titulo };
+    porFecha.set(intervalo.fecha, [...(porFecha.get(intervalo.fecha) ?? []), intervalo]);
+  }
+  return porFecha;
+};
+
+// La sesión grupal con la que se cruza el bloque de una hora, o undefined.
+const sesionQueCruza = (sesiones, fecha, horaInicio) => {
+  const inicio = minutosDe(horaInicio);
+  const bloque = { inicio, fin: inicio + 60 };
+  return (sesiones.get(fecha) ?? []).find((sesion) => seCruzan(bloque, sesion));
+};
+
+const armarSemana = ({ semana, semanas, filas, ahora, sesiones = new Map() }) => {
   const activos = indexarActivos(filas);
   const dias = Array.from({ length: DIAS_POR_SEMANA }, (_, indice) => {
     const fecha = sumarDias(semana, indice);
@@ -64,6 +83,7 @@ const armarSemana = ({ semana, semanas, filas, ahora }) => {
         let estado = "no_disponible";
         if (guardado?.confirmado) estado = "confirmado";
         else if (guardado?.pendiente) estado = "pendiente";
+        else if (sesionQueCruza(sesiones, fecha, horaInicio)) estado = "sesion_grupal";
         else if (esPasado(fecha, horaInicio, ahora)) estado = "pasado";
         else if (guardado) estado = "disponible";
         return { horaInicio, horaFin: horaFinDe(horaInicio), estado };
@@ -80,12 +100,11 @@ export const obtenerMiSemana = async (tutorId, semanaPedida) => {
   const semana = semanaPedida ? lunesDe(semanaPedida) : semanas[0];
   validarSemana(semana, semanas);
 
-  const filas = await bloquesDeTutorEntre({
-    tutorId,
-    desde: semana,
-    hasta: sabadoDe(semana),
-  });
-  return armarSemana({ semana, semanas, filas, ahora });
+  const [filas, sesiones] = await Promise.all([
+    bloquesDeTutorEntre({ tutorId, desde: semana, hasta: sabadoDe(semana) }),
+    sesionesPorFecha(tutorId, semana, sabadoDe(semana)),
+  ]);
+  return armarSemana({ semana, semanas, filas, ahora, sesiones });
 };
 
 // Recibe la lista completa de bloques marcados de la semana y aplica la
@@ -124,6 +143,7 @@ export const guardarMiSemana = async (tutorId, { semana, bloques }) => {
       }
     }
 
+    const sesiones = await sesionesPorFecha(tutorId, semana, sabado);
     const crear = [];
     const reactivarIds = [];
     for (const [llave, bloque] of deseados) {
@@ -131,6 +151,12 @@ export const guardarMiSemana = async (tutorId, { semana, bloques }) => {
       if (esPasado(bloque.fecha, bloque.horaInicio, ahora)) {
         throw bloqueInvalido(
           `No puedes agregar el bloque del ${describirBloque(bloque)} porque ya pasó`,
+        );
+      }
+      const sesion = sesionQueCruza(sesiones, bloque.fecha, bloque.horaInicio);
+      if (sesion) {
+        throw bloqueInvalido(
+          `El bloque del ${describirBloque(bloque)} se cruza con tu sesión grupal "${sesion.titulo}"`,
         );
       }
       const inactivo = inactivos.get(llave);
@@ -179,11 +205,10 @@ export const obtenerDisponibilidadPublica = async (usuarioId, tutorId) => {
 
   const ahora = ahoraEnColombia();
   const semanas = semanasDeLaVentana(ahora);
-  const filas = await bloquesLibresDeTutor({
-    tutorId,
-    desde: semanas[0],
-    hasta: sabadoDe(semanas.at(-1)),
-  });
+  const [filas, sesiones] = await Promise.all([
+    bloquesLibresDeTutor({ tutorId, desde: semanas[0], hasta: sabadoDe(semanas.at(-1)) }),
+    sesionesPorFecha(tutorId, semanas[0], sabadoDe(semanas.at(-1))),
+  ]);
 
   const vistos = new Set();
   const bloques = [];
@@ -193,7 +218,8 @@ export const obtenerDisponibilidadPublica = async (usuarioId, tutorId) => {
       vistos.has(llave) ||
       !estaAlineado(fila) ||
       diaDeLaSemana(fila.fecha) >= DIAS_POR_SEMANA ||
-      esPasado(fila.fecha, fila.horaInicio, ahora)
+      esPasado(fila.fecha, fila.horaInicio, ahora) ||
+      sesionQueCruza(sesiones, fila.fecha, fila.horaInicio)
     ) {
       continue;
     }

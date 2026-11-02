@@ -92,6 +92,7 @@ model sesiones_grupales {
   titulo                      String                        @db.VarChar(150)
   descripcion                 String?                       @db.Text
   fechaHoraSesion             DateTime                      @map("fecha_hora_sesion") @db.DateTime(0)
+  duracionMinutos             Int                           @default(90) @map("duracion_minutos") @db.UnsignedSmallInt
   cupo                        Int                           @db.UnsignedSmallInt
   estado                      sesiones_grupales_estado      @default(abierta)
   creadoEn                    DateTime                      @default(now()) @map("creado_en") @db.Timestamp(0)

@@ -10,6 +10,7 @@ import adminVerificacionRoutes from "./modules/tutores/verificacion/verificacion
 import busquedaRoutes from "./modules/busqueda/busqueda.routes.js";
 import disponibilidadRoutes from "./modules/disponibilidad/disponibilidad.routes.js";
 import solicitudesRoutes from "./modules/solicitudes/solicitudes.routes.js";
+import tutoriasGrupalesRoutes from "./modules/tutorias-grupales/tutorias-grupales.routes.js";
 import { iniciarBarridoPendientes } from "./modules/tutores/verificacion/verificacion.service.js";
 import { errorHandler } from "./shared/middlewares/errorHandler.js";
 
@@ -25,6 +26,7 @@ app.use("/api/admin", adminVerificacionRoutes);
 app.use("/api/busqueda", busquedaRoutes);
 app.use("/api/disponibilidad", disponibilidadRoutes);
 app.use("/api/solicitudes", solicitudesRoutes);
+app.use("/api/sesiones-grupales", tutoriasGrupalesRoutes);
 
 transporte.verify()
   .then(() => console.log("SMTP conectado correctamente"))
