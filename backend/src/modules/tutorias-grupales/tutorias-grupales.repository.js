@@ -102,12 +102,31 @@ export const buscarSesion = async (id) => {
   return fila ? aSesion(fila) : null;
 };
 
+// Sesiones del tutor con sus inscritos confirmados (nombre y correo), para
+// "Mis sesiones grupales": solo el propio tutor recibe esta lista.
 export const listarSesionesDeTutor = async (tutorId) => {
   const filas = await prisma.sesiones_grupales.findMany({
     where: { tutorId },
-    select: seleccionSesion,
+    select: {
+      ...seleccionSesion,
+      inscripciones_sesion_grupal: {
+        where: { estado: INSCRIPCION_CONFIRMADA },
+        select: {
+          inscritoEn: true,
+          usuarios: { select: { nombres: true, apellidos: true, correoInstitucional: true } },
+        },
+        orderBy: { inscritoEn: "asc" },
+      },
+    },
   });
-  return filas.map(aSesion);
+  return filas.map((fila) => ({
+    ...aSesion(fila),
+    listaInscritos: fila.inscripciones_sesion_grupal.map((inscripcion) => ({
+      nombreCompleto: `${inscripcion.usuarios.nombres} ${inscripcion.usuarios.apellidos}`.trim(),
+      correo: inscripcion.usuarios.correoInstitucional,
+      inscritoEn: inscripcion.inscritoEn,
+    })),
+  }));
 };
 
 // Sesiones abiertas o llenas (012) que aún no empiezan, de tutores visibles (al

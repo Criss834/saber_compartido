@@ -177,9 +177,10 @@ export const listarMateriasParaSesion = async (tutorId) => ({
 // reciente arriba).
 export const listarMisSesiones = async (tutorId) => {
   const ahora = ahoraEnColombia();
-  const vistas = (await listarSesionesDeTutor(tutorId)).map((sesion) =>
-    aVista(sesion, ahora, { conTutor: false }),
-  );
+  const vistas = (await listarSesionesDeTutor(tutorId)).map((sesion) => ({
+    ...aVista(sesion, ahora, { conTutor: false }),
+    listaInscritos: sesion.listaInscritos,
+  }));
   const proximas = vistas.filter((v) => !v.pasada).sort((a, b) => momento(a).localeCompare(momento(b)));
   const pasadas = vistas.filter((v) => v.pasada).sort((a, b) => momento(b).localeCompare(momento(a)));
   return { sesiones: [...proximas, ...pasadas] };
