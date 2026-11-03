@@ -1,0 +1,12 @@
+{
+  "name": "saber-compartido",
+  "private": true,
+  "description": "Build y arranque para el despliegue (Render): el backend sirve el build del frontend.",
+  "engines": {
+    "node": "22.x"
+  },
+  "scripts": {
+    "build": "npm ci --prefix frontend --include=dev && npm run build --prefix frontend && npm ci --prefix backend --include=dev && cd backend && npx prisma generate --config prisma7.config.ts",
+    "start": "npm start --prefix backend"
+  }
+}

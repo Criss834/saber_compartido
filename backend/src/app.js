@@ -1,3 +1,5 @@
+import { existsSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import express from "express";
 import cookieParser from "cookie-parser";
 import { config } from "./config/index.js";
@@ -15,6 +17,9 @@ import { iniciarBarridoPendientes } from "./modules/tutores/verificacion/verific
 import { errorHandler } from "./shared/middlewares/errorHandler.js";
 
 const app = express();
+
+// En Railway la app está detrás de un proxy HTTPS.
+app.set("trust proxy", 1);
 
 app.use(express.json());
 app.use(cookieParser());
@@ -35,6 +40,16 @@ transporte.verify()
 app.get("/api/salud", (req, res) => {
   res.json({ estado: "ok" });
 });
+
+// En producción el backend sirve el build del frontend (mismo dominio: la cookie
+// de sesión y /api funcionan sin CORS). En desarrollo el frontend lo sirve Vite.
+const carpetaFrontend = fileURLToPath(new URL("../../frontend/dist", import.meta.url));
+if (process.env.NODE_ENV === "production" && existsSync(carpetaFrontend)) {
+  app.use(express.static(carpetaFrontend));
+  app.get(/^(?!\/api\/).*/, (req, res) => {
+    res.sendFile("index.html", { root: carpetaFrontend });
+  });
+}
 
 app.use(errorHandler);
 
