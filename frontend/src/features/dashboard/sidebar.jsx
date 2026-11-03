@@ -213,7 +213,7 @@ export const Sidebar = ({ abierto = false, alNavegar, onCerrarSesion }) => {
         >
           <Avatar nombre={nombreCompleto} />
           <span className="flex min-w-0 flex-col gap-1">
-            <strong className="truncate text-[12px]">{nombreCompleto}</strong>
+            <strong className="text-[12px] leading-tight">{nombreCompleto}</strong>
             <small className="text-[10px] text-text-muted">
               {mayusculaInicial(usuario?.rol ?? "")}
             </small>

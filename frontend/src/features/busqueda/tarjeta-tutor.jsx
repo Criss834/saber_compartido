@@ -27,7 +27,7 @@ export const MarcaVerificado = ({ grande = false }) => (
 // Nombre con la marca pegada a la última palabra: si el nombre se parte en
 // varias líneas, la marca nunca queda sola en una fila.
 export const NombreVerificado = ({ nombre = "", grande = false }) => {
-  const palabras = nombre.trim().split(/s+/);
+  const palabras = nombre.trim().split(/\s+/);
   const ultima = palabras.pop() ?? "";
   return (
     <>
@@ -95,7 +95,7 @@ export const TarjetaTutor = ({ tutor, materiaId }) => {
           className="text-[13px]"
         />
         <div className="min-w-0 flex-1">
-          <h3 className="m-0 break-words text-[12px] font-bold text-text">
+          <h3 className="m-0 text-[12px] font-bold text-text">
             <NombreVerificado nombre={tutor.nombreCompleto} />
           </h3>
           <p className="my-[5px] text-[10px] text-text-muted">

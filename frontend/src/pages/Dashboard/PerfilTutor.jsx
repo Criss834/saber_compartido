@@ -175,7 +175,7 @@ export const PerfilTutor = () => {
           className="text-[19px] [grid-area:avatar] max-[650px]:text-[16px]"
         />
         <div className="min-w-0 self-end [grid-area:datos] max-[650px]:self-center">
-          <h2 className="mb-1 mt-0 break-words text-[19px] leading-tight tracking-[-0.5px] text-text max-[650px]:text-[17px]">
+          <h2 className="mb-1 mt-0 text-[19px] leading-tight tracking-[-0.5px] text-text max-[650px]:text-[17px]">
             <NombreVerificado nombre={tutor.nombreCompleto} grande />
           </h2>
           <p className="m-0 text-[11px] text-text-muted">{PROGRAMA_ACADEMICO}</p>

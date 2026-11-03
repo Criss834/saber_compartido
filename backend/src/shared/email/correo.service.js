@@ -10,8 +10,8 @@ const escaparHtml = (texto) =>
     .replace(/'/g, "&#39;");
 
 const plantillaVerificacion = (nombres, enlace) => `
-  <div style="font-family: Inter, Arial, sans-serif; background: #F5F3FF; padding: 32px 16px;">
-    <div style="max-width: 520px; margin: 0 auto; background: #FFFFFF; border-radius: 16px; padding: 32px 28px; border: 1px solid #E5E7EB;">
+  <div style="font-family: Inter, Arial, sans-serif; background: #F5F3FF; padding: 24px 12px;">
+    <div style="max-width: 520px; margin: 0 auto; background: #FFFFFF; border-radius: 16px; padding: 28px 22px; border: 1px solid #E5E7EB; box-sizing: border-box; word-wrap: break-word; overflow-wrap: break-word;">
       <h1 style="font-family: Poppins, Arial, sans-serif; color: #7C3AED; font-size: 22px; margin: 0 0 16px;">
         Saber Compartido
       </h1>
@@ -55,15 +55,19 @@ export const enviarCorreoVerificacion = async ({ correo, nombres, token }) => {
 const remitente = () =>
   config.smtp.remitente || config.smtp.usuario || "no-responder@localhost";
 
+// Etiqueta arriba y valor debajo: en Gmail móvil una tabla de dos columnas con
+// valores largos (correos, horarios) se salía de la tarjeta.
 const filaDato = (etiqueta, valor) => `
   <tr>
-    <td style="color: #6B7280; font-size: 13px; padding: 6px 12px 6px 0; vertical-align: top; white-space: nowrap;">${escaparHtml(etiqueta)}</td>
-    <td style="color: #1F1147; font-size: 14px; padding: 6px 0; font-weight: 600;">${escaparHtml(valor)}</td>
+    <td style="padding: 9px 0; border-bottom: 1px solid #F0EDF6;">
+      <div style="color: #6B7280; font-size: 12px; line-height: 1.4; margin: 0 0 2px;">${escaparHtml(etiqueta)}</div>
+      <div style="color: #1F1147; font-size: 14px; line-height: 1.5; font-weight: 600; word-break: break-word; overflow-wrap: anywhere;">${escaparHtml(valor)}</div>
+    </td>
   </tr>`;
 
 const plantillaSolicitud = ({ saludo, intro, datos, boton, enlace, pie }) => `
-  <div style="font-family: Inter, Arial, sans-serif; background: #F5F3FF; padding: 32px 16px;">
-    <div style="max-width: 520px; margin: 0 auto; background: #FFFFFF; border-radius: 16px; padding: 32px 28px; border: 1px solid #E5E7EB;">
+  <div style="font-family: Inter, Arial, sans-serif; background: #F5F3FF; padding: 24px 12px;">
+    <div style="max-width: 520px; margin: 0 auto; background: #FFFFFF; border-radius: 16px; padding: 28px 22px; border: 1px solid #E5E7EB; box-sizing: border-box; word-wrap: break-word; overflow-wrap: break-word;">
       <h1 style="font-family: Poppins, Arial, sans-serif; color: #7C3AED; font-size: 22px; margin: 0 0 16px;">
         Saber Compartido
       </h1>
@@ -73,7 +77,7 @@ const plantillaSolicitud = ({ saludo, intro, datos, boton, enlace, pie }) => `
       <p style="color: #6B7280; font-size: 15px; line-height: 1.6; margin: 0 0 18px;">
         ${escaparHtml(intro)}
       </p>
-      <table style="border-collapse: collapse; margin: 0 0 24px;">
+      <table role="presentation" width="100%" style="width: 100%; border-collapse: collapse; table-layout: fixed; margin: 0 0 24px;">
         ${datos
           .filter(([, valor]) => valor)
           .map(([etiqueta, valor]) => filaDato(etiqueta, valor))
