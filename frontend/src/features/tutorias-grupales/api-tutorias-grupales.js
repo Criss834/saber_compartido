@@ -37,3 +37,19 @@ export const obtenerSesionesPublicas = ({ signal } = {}) =>
   pedir("/api/sesiones-grupales", "No pudimos cargar las tutorías grupales", { signal });
 
 export const esCancelacion = (error) => error?.name === "AbortError";
+
+// Inscripción (012)
+export const inscribirseSesion = (id) =>
+  pedir(`/api/sesiones-grupales/${encodeURIComponent(id)}/inscripcion`, "No pudimos inscribirte", {
+    method: "POST",
+  });
+
+export const obtenerMisInscripciones = ({ signal } = {}) =>
+  pedir("/api/sesiones-grupales/inscripciones", "No pudimos cargar tus inscripciones", { signal });
+
+export const obtenerInscritos = (id, { signal } = {}) =>
+  pedir(
+    `/api/sesiones-grupales/${encodeURIComponent(id)}/inscritos`,
+    "No pudimos cargar los inscritos",
+    { signal },
+  );

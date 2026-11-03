@@ -4,7 +4,8 @@ import { modalidadDe } from "./constantes.js";
 
 // Tarjeta de "Tutorías grupales" del prototipo (`groupsView`): icono, nombre,
 // materia, badge de cupos, tutor, fecha y duración, descripción, barra de
-// ocupación e "Inscribirme". La inscripción llega en la 012.
+// ocupación e "Inscribirme a la sesión" (012): habilitado si hay cupos, "Ya estás
+// inscrito" si el usuario ya se inscribió y "Sesión sin cupos" si está llena.
 
 const Dato = ({ icono, titulo, children }) => (
   <div className="flex items-start gap-[11px]">
@@ -21,9 +22,9 @@ const Dato = ({ icono, titulo, children }) => (
   </div>
 );
 
-export const TarjetaSesionGrupal = ({ sesion }) => {
+export const TarjetaSesionGrupal = ({ sesion, onInscribirse, inscribiendo = false, bloqueado = false }) => {
   const ocupacion = sesion.cupo > 0 ? Math.round((sesion.inscritos / sesion.cupo) * 100) : 0;
-  const hayCupos = sesion.disponibles > 0;
+  const hayCupos = sesion.disponibles > 0 && sesion.estado !== "llena";
   const modalidad = modalidadDe(sesion.modalidad.clave);
 
   return (
@@ -39,15 +40,22 @@ export const TarjetaSesionGrupal = ({ sesion }) => {
           <strong className="block break-words text-[12px] text-text">{sesion.titulo}</strong>
           <p className="mb-0 mt-1 text-[10px] leading-[1.5] text-text-muted">{sesion.materia.nombre}</p>
         </div>
-        <span
-          className={`whitespace-nowrap rounded-full px-2.5 py-[5px] text-[9px] font-bold ${
-            hayCupos
-              ? "bg-status-success text-status-success-ink"
-              : "bg-status-pending text-status-pending-ink"
-          }`}
-        >
-          {hayCupos ? "Cupos abiertos" : "Cupos llenos"}
-        </span>
+        <div className="flex flex-col items-end gap-1">
+          <span
+            className={`whitespace-nowrap rounded-full px-2.5 py-[5px] text-[9px] font-bold ${
+              hayCupos
+                ? "bg-status-success text-status-success-ink"
+                : "bg-status-pending text-status-pending-ink"
+            }`}
+          >
+            {hayCupos ? "Cupos abiertos" : "Cupos llenos"}
+          </span>
+          {sesion.inscrito && (
+            <span className="whitespace-nowrap rounded-full bg-primary-light px-2.5 py-[5px] text-[9px] font-bold text-primary-dark">
+              ✓ Inscrito
+            </span>
+          )}
+        </div>
       </div>
 
       <div className="my-[15px] h-px bg-[#f0ebf6]" />
@@ -93,17 +101,35 @@ export const TarjetaSesionGrupal = ({ sesion }) => {
         </div>
       </div>
 
-      <button
-        type="button"
-        disabled
-        title="La inscripción a sesiones grupales estará disponible próximamente"
-        className="mt-auto inline-flex min-h-[39px] cursor-not-allowed items-center justify-center gap-1.5 rounded-[10px] bg-accent px-[15px] text-[11px] font-bold text-white opacity-55"
-      >
-        Inscribirme a la sesión
-        <span className="rounded-full bg-white/25 px-1.5 py-px text-[8px] font-extrabold uppercase tracking-[0.4px]">
-          Próximamente
-        </span>
-      </button>
+      {sesion.inscrito ? (
+        <button
+          type="button"
+          disabled
+          className="mt-auto inline-flex min-h-[39px] cursor-default items-center justify-center rounded-[10px] border border-[#d9c9fb] bg-primary-light px-[15px] text-[11px] font-bold text-primary-dark"
+        >
+          ✓ Ya estás inscrito
+        </button>
+      ) : hayCupos ? (
+        <button
+          type="button"
+          onClick={() => onInscribirse?.(sesion)}
+          disabled={inscribiendo || bloqueado}
+          className="mt-auto inline-flex min-h-[39px] items-center justify-center gap-2 rounded-[10px] border-0 bg-accent px-[15px] text-[11px] font-bold text-white shadow-[0_7px_15px_rgba(255,90,140,0.22)] transition enabled:hover:-translate-y-px disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {inscribiendo && (
+            <span className="motion-safe:animate-spin h-3.5 w-3.5 rounded-full border-2 border-white/40 border-t-white" />
+          )}
+          {inscribiendo ? "Inscribiendo…" : "Inscribirme a la sesión"}
+        </button>
+      ) : (
+        <button
+          type="button"
+          disabled
+          className="mt-auto inline-flex min-h-[39px] cursor-not-allowed items-center justify-center rounded-[10px] border border-border bg-[#f5f4f7] px-[15px] text-[11px] font-bold text-[#a49bb4]"
+        >
+          Sesión sin cupos
+        </button>
+      )}
     </article>
   );
 };

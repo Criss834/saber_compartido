@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { useAuth } from "../../features/auth/auth-context.jsx";
 import { horaLarga } from "../../features/disponibilidad/formato.js";
 import {
@@ -173,9 +174,11 @@ export const SesionesGrupales = () => {
             <PanelLista
               titulo="Mis sesiones publicadas"
               pie={
-                datos.sesiones.length > 0
-                  ? `${datos.sesiones.length} ${datos.sesiones.length === 1 ? "sesión" : "sesiones"}`
-                  : null
+                datos.sesiones.length > 0 ? (
+                  <Link to="/dashboard/mis-sesiones-grupales" className="font-bold text-primary hover:underline">
+                    Ver todas mis sesiones e inscritos ({datos.sesiones.length})
+                  </Link>
+                ) : null
               }
             >
               {datos.sesiones.length === 0 ? (
@@ -189,7 +192,11 @@ export const SesionesGrupales = () => {
                   aria-busy={cargando}
                   className={`m-0 list-none p-0 transition-opacity ${cargando ? "opacity-60" : ""}`}
                 >
-                  {datos.sesiones.map((sesion) => (
+                  {/* Resumen: las 3 próximas; el detalle está en "Mis sesiones grupales". */}
+                  {(datos.sesiones.filter((sesion) => !sesion.pasada).slice(0, 3).length > 0
+                    ? datos.sesiones.filter((sesion) => !sesion.pasada).slice(0, 3)
+                    : datos.sesiones.slice(0, 3)
+                  ).map((sesion) => (
                     <FilaSesion key={sesion.id} sesion={sesion} />
                   ))}
                 </ul>

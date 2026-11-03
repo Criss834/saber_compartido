@@ -93,8 +93,14 @@ const GRUPO_TUTOR = {
       implementado: true,
     },
     {
+      ruta: "/dashboard/mis-sesiones-grupales",
+      etiqueta: "Mis sesiones grupales",
+      icono: "tutorias",
+      implementado: true,
+    },
+    {
       ruta: "/dashboard/sesiones-grupales",
-      etiqueta: "Sesiones grupales",
+      etiqueta: "Nueva sesión grupal",
       icono: "grupal",
       implementado: true,
     },

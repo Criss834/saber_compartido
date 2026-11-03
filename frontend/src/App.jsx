@@ -11,6 +11,7 @@ import { MisTutorias } from "./pages/Dashboard/MisTutorias.jsx";
 import { SolicitudesRecibidas } from "./pages/Dashboard/SolicitudesRecibidas.jsx";
 import { SesionesGrupales } from "./pages/Dashboard/SesionesGrupales.jsx";
 import { TutoriasGrupales } from "./pages/Dashboard/TutoriasGrupales.jsx";
+import { MisSesionesGrupales } from "./pages/Dashboard/MisSesionesGrupales.jsx";
 import { Proximamente } from "./pages/Dashboard/Proximamente.jsx";
 import { Verificaciones } from "./pages/Dashboard/Verificaciones.jsx";
 import { VerificacionDetalle } from "./pages/Dashboard/VerificacionDetalle.jsx";
@@ -72,6 +73,7 @@ const App = () => {
                 <Route path="mi-disponibilidad" element={<MiDisponibilidad />} />
                 <Route path="solicitudes-recibidas" element={<SolicitudesRecibidas />} />
                 <Route path="sesiones-grupales" element={<SesionesGrupales />} />
+                <Route path="mis-sesiones-grupales" element={<MisSesionesGrupales />} />
               </Route>
               <Route element={<RutaPorRol rolesPermitidos={ROLES_ADMIN} />}>
                 <Route path="admin/verificaciones" element={<Verificaciones />} />
