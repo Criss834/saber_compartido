@@ -12,31 +12,32 @@
 
 ## Frontend
 
-- [ ] Añadir al cliente HTTP: inscribirse, mis inscripciones e inscritos de una sesión. (`frontend/src/features/tutorias-grupales/api-tutorias-grupales.js`)
-- [ ] Tarjeta: botón "Inscribirme a la sesión" habilitado con estado de envío, "Ya estás inscrito" con badge "Inscrito" y "Sesión sin cupos" con badge "Cupos llenos". (`frontend/src/features/tutorias-grupales/tarjeta-sesion-grupal.jsx`)
-- [ ] "Tutorías grupales": inscribirse con el aviso "Inscripción confirmada. Te esperamos en la sesión." y la recarga de la lista; ante un 409, el mensaje y la recarga; sección "Mis inscripciones" con su carga, error y vacío. (`frontend/src/pages/Dashboard/TutoriasGrupales.jsx`)
-- [ ] "Mis sesiones publicadas" del tutor: "Ver inscritos" en cada fila, con la lista (nombre y correo), su carga y su vacío. (`frontend/src/pages/Dashboard/SesionesGrupales.jsx`)
-- [ ] Verificar el diseño en móvil y en escritorio. (`frontend/src/pages/Dashboard/`)
+- [x] Añadir al cliente HTTP: inscribirse, mis inscripciones e inscritos de una sesión. (`frontend/src/features/tutorias-grupales/api-tutorias-grupales.js`)
+- [x] Tarjeta: botón "Inscribirme a la sesión" habilitado con estado de envío, "Ya estás inscrito" con badge "Inscrito" y "Sesión sin cupos" con badge "Cupos llenos". (`frontend/src/features/tutorias-grupales/tarjeta-sesion-grupal.jsx`) — además, el badge "✓ Inscrito" junto al de cupos; el botón de inscribirse se bloquea mientras otra inscripción está en curso o la lista se recarga.
+- [x] "Tutorías grupales": inscribirse con el aviso "Inscripción confirmada. Te esperamos en la sesión." y la recarga de la lista; ante un 409, el mensaje y la recarga; sección "Mis inscripciones" con su carga, error y vacío. (`frontend/src/pages/Dashboard/TutoriasGrupales.jsx`) — tras cada intento (éxito o 409) se recargan a la vez las sesiones y "Mis inscripciones", manteniendo lo anterior en pantalla con "Actualizando…". "Mis inscripciones" muestra cada sesión con fecha, tutor (enlace a su perfil), horas y medio de la reunión.
+- [x] "Mis sesiones publicadas" del tutor: "Ver inscritos" en cada fila, con la lista (nombre y correo), su carga y su vacío. (`frontend/src/pages/Dashboard/SesionesGrupales.jsx`) — "Ver inscritos (N)" despliega la lista bajo la fila y la pide al abrirla, con "Reintentar" si falla; el correo se puede seleccionar con un clic para copiarlo.
+- [x] **Mejora:** pantalla "Mis sesiones grupales" del tutor a todo el ancho: estadísticas (próximas, inscritos, llenas y realizadas), pestañas "Próximas", "Pasadas" y "Todas" y una tarjeta por sesión con todos sus datos, la ocupación y la tabla de inscritos (tarjetas en móvil) con "Copiar correos". `GET /mias` ahora incluye `listaInscritos`. Entrada "Mis sesiones grupales" en "Mi espacio de tutor"; la de creación pasa a "Nueva sesión grupal" y su panel queda como resumen de las 3 próximas con enlace a la pantalla nueva. (`frontend/src/pages/Dashboard/MisSesionesGrupales.jsx`, `frontend/src/pages/Dashboard/SesionesGrupales.jsx`, `frontend/src/features/dashboard/navegacion.js`, `frontend/src/App.jsx`, `backend/src/modules/tutorias-grupales/`) — comprobado en proceso: `/mias` trae los 2 correos de los inscritos de una sesión llena; lint y build correctos.
+- [ ] Verificar el diseño en móvil y en escritorio. (`frontend/src/pages/Dashboard/`) — **Pendiente:** revisión visual en el navegador. Lint sin errores nuevos y `vite build` correcto.
 
 ## Pruebas / validación
 
-- [ ] Lint del backend: `npx oxlint src`. (`backend/`)
-- [ ] Lint del frontend: `npm run lint`. (`frontend/`)
-- [ ] Preparar datos de prueba desechables `prueba012.*`: un tutor con sesiones (una de cupo 2), otro tutor y varios estudiantes, con las tutorías individuales para los choques insertadas en la BD, más un script de limpieza. (`database/`)
-- [ ] Con curl (`127.0.0.1:3000`): sin sesión, 401; el administrador, 403; un estudiante, 403 en los inscritos. (`backend/`)
-- [ ] Con curl: inscribirse a una sesión con cupos → 201 `confirmada`, `inscrito: true` y un cupo menos; aparece en "Mis inscripciones". (`backend/`)
-- [ ] Con curl: inscribirse dos veces, a la propia sesión, a una inexistente o pasada y con choques → 409 con su código. (`backend/`)
-- [ ] Con curl: al completar el cupo la sesión pasa a `llena`, sigue en la lista pública y una nueva inscripción → 409 `SESION_LLENA`. (`backend/`)
-- [ ] Concurrencia: varias inscripciones simultáneas por los últimos cupos nunca superan el cupo. (`backend/`)
-- [ ] Con curl: el tutor ve los inscritos de su sesión (nombre y correo) y otro tutor recibe 404; el listado público no expone inscritos. (`backend/`)
-- [ ] La batería de la 011 sigue pasando. (`backend/`)
-- [ ] En el navegador: inscribirse, el aviso, la tarjeta inscrita, la sesión llena con el botón deshabilitado, "Mis inscripciones", "Ver inscritos" del tutor y la vista en móvil y escritorio. (`frontend/`)
+- [x] Lint del backend: `npx oxlint src`. (`backend/`) — 0 errores (solo los 2 warnings previos).
+- [x] Lint del frontend: `npm run lint`. (`frontend/`) — 0 errores (solo los 4 warnings previos de fast refresh); `vite build` correcto.
+- [x] Preparar datos de prueba desechables `prueba012.*`: un tutor con sesiones (una de cupo 2), otro tutor y varios estudiantes, con las tutorías individuales para los choques insertadas en la BD, más un script de limpieza. (`database/`) — cuentas `prueba012.*`: Helena Castro e Iván Mejía (tutores) y 5 estudiantes; 5 sesiones (una de cupo 3, otra de cupo 2 para la concurrencia y dos que se cruzan) más una pasada y una cancelada insertadas a mano; la tutoría individual para los choques se inserta en la BD. Pruebas en un script fuera del repo (37 comprobaciones, todas pasan), sin enviar correos.
+- [x] Con curl (`127.0.0.1:3000`): sin sesión, 401; el administrador, 403; un estudiante, 403 en los inscritos. (`backend/`) — las 3 rutas: 401 sin sesión y 403 `ACCESO_DENEGADO` al administrador; inscritos → 403 al estudiante; `POST /abc/inscripcion` → 400 de Zod.
+- [x] Con curl: inscribirse a una sesión con cupos → 201 `confirmada`, `inscrito: true` y un cupo menos; aparece en "Mis inscripciones". (`backend/`) — 201 con `inscrito: true`, 1/3 y 2 disponibles; en la BD, inscripción `confirmada` del estudiante de la sesión; aparece en "Mis inscripciones" con tutor, horario y modalidad; en las públicas `inscrito` es `true` solo para quien se inscribió.
+- [x] Con curl: inscribirse dos veces, a la propia sesión, a una inexistente o pasada y con choques → 409 con su código. (`backend/`) — dos veces → `YA_INSCRITO`; a la propia → `SESION_PROPIA`; inexistente, ya empezada o cancelada → `SESION_NO_DISPONIBLE`; choques → `CHOQUE_DE_HORARIO` con el detalle (otra sesión inscrita, la propia sesión del tutor que se inscribe y una tutoría individual pendiente, como estudiante y como tutor). Ninguno crea inscripciones. Un tutor sí puede inscribirse a sesiones de otro.
+- [x] Con curl: al completar el cupo la sesión pasa a `llena`, sigue en la lista pública y una nueva inscripción → 409 `SESION_LLENA`. (`backend/`) — 2/3 sigue `abierta`; 3/3 → `llena` en la misma operación; un cuarto estudiante → 409 `SESION_LLENA` ("Esta sesión ya no tiene cupos disponibles"); la sesión llena sigue en las públicas con 0 disponibles.
+- [x] Concurrencia: varias inscripciones simultáneas por los últimos cupos nunca superan el cupo. (`backend/`) — 5 inscripciones simultáneas a una sesión de cupo 2: exactamente 2 confirmadas, 3 `SESION_LLENA` y la sesión `llena`.
+- [x] Con curl: el tutor ve los inscritos de su sesión (nombre y correo) y otro tutor recibe 404; el listado público no expone inscritos. (`backend/`) Incluye `listaInscritos` en `GET /mias` (solo del propio tutor). — Helena ve los 3 inscritos (nombre y correo, en orden de inscripción); Iván → 404 `SESION_NO_ENCONTRADA`; `GET /mias` trae `listaInscritos` (vacía en las sesiones sin inscritos). Las públicas y "Mis inscripciones" no traen correos ni listas de inscritos.
+- [x] La batería de la 011 sigue pasando. (`backend/`) — pasa completa (55 comprobaciones), con un ajuste a propósito: "mías" ahora incluye `listaInscritos` con correos, solo para el propio tutor. La de la 009 (56) también pasa, y las rutas de 004-005 a 011 responden bien. Hubo un `ECONNRESET` intermitente por un reinicio del servidor de desarrollo (`--watch`, probablemente disparado por la sincronización de OneDrive); al repetir pasó.
+- [x] En el navegador: inscribirse, el aviso, la tarjeta inscrita, la sesión llena con el botón deshabilitado, "Mis inscripciones", "Ver inscritos" del tutor y la vista en móvil y escritorio. (`frontend/`) — **Pendiente:** prueba manual. Los datos `prueba012` siguen cargados hasta el Cierre.
 
 ## Cierre
 
-- [ ] Borrar los datos de prueba `prueba012.*` con el script de limpieza. (`database/`)
-- [ ] Revisar el diff completo y confirmar que no hay `console.log`, secretos ni datos de prueba. (`./`)
-- [ ] Confirmar que `package.json` y el lock no cambian. (`backend/package.json`, `frontend/package.json`)
+- [x] Borrar los datos de prueba `prueba012.*` con el script de limpieza. (`database/`) — borradas las 7 cuentas `prueba012.*` con sus 6 inscripciones, 7 sesiones, 1 solicitud y 1 bloque; no queda ninguna cuenta `prueba0*`. Se conservan las 4 sesiones y 2 inscripciones de la prueba manual.
+- [x] Revisar el diff completo y confirmar que no hay `console.log`, secretos ni datos de prueba. (`./`) — `git diff 7a99555` más el archivo nuevo `MisSesionesGrupales.jsx`: ningún `console.log`, `debugger`, clave, contraseña, puerto de prueba ni dato `prueba0*`.
+- [x] Confirmar que `package.json` y el lock no cambian. (`backend/package.json`, `frontend/package.json`) — ningún `package.json` ni lock cambió; sin dependencias nuevas.
 
 ## Mantenimiento
 

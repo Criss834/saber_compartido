@@ -65,6 +65,8 @@ Todo vive en el módulo `tutorias-grupales` de la 011, que ya tiene los interval
 
 ## Decisiones
 
+- **"Mis sesiones grupales" como pantalla propia** (añadida durante el Frontend). El panel lateral de "Sesiones grupales" quedaba muy comprimido para ver los inscritos, así que el detalle pasa a una pantalla a todo el ancho y el panel queda como resumen. `GET /api/sesiones-grupales/mias` incluye `listaInscritos` de cada sesión, que solo recibe el propio tutor, para cargarla en una sola petición. `GET /:id/inscritos` se mantiene.
+
 - **Sin cambios de esquema.** La tabla y su `UNIQUE` ya cubren la historia.
 - **`FOR UPDATE` sobre la sesión** para que el cupo nunca se supere, el mismo patrón probado en la 010 y la 011.
 - **`llena` se guarda en la sesión**, no solo se calcula, para que la lista pública y el estado del tutor lo muestren sin recalcular, como prevé el tech-stack.
