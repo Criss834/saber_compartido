@@ -3,7 +3,7 @@ import { fileURLToPath } from "node:url";
 import express from "express";
 import cookieParser from "cookie-parser";
 import { config } from "./config/index.js";
-import {transporte} from "./shared/email/transporte.js";
+import { transporte, medioCorreo } from "./shared/email/transporte.js";
 import authRoutes from "./modules/auth/auth.routes.js";
 import dashboardRoutes from "./modules/dashboard/dashboard.routes.js";
 import materiasRoutes from "./modules/materias/materias.routes.js";
@@ -34,8 +34,8 @@ app.use("/api/solicitudes", solicitudesRoutes);
 app.use("/api/sesiones-grupales", tutoriasGrupalesRoutes);
 
 transporte.verify()
-  .then(() => console.log("SMTP conectado correctamente"))
-  .catch((error) => console.error("Error de configuración SMTP:", error.message));
+  .then(() => console.log(`Correo conectado correctamente (${medioCorreo})`))
+  .catch((error) => console.error(`Error de configuración del correo (${medioCorreo}):`, error.message));
 
 app.get("/api/salud", (req, res) => {
   res.json({ estado: "ok" });

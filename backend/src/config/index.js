@@ -31,6 +31,10 @@ export const config = {
     clave: process.env.SMTP_PASS,
     remitente: process.env.CORREO_REMITENTE,
   },
+  // Envío por la API HTTPS de Brevo (para hostings que bloquean SMTP). Vacía = SMTP.
+  brevo: {
+    apiKey: process.env.BREVO_API_KEY ?? "",
+  },
   sesion: {
     secreto: CLAVE_SESION,
     duracionSegundos: 7 * 24 * 60 * 60,
