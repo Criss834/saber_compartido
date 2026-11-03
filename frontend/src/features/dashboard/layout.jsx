@@ -17,6 +17,15 @@ export const LayoutDashboard = () => {
         onCerrarSesion={cerrarSesion}
       />
 
+      {/* En móvil, tocar fuera del sidebar lo cierra. */}
+      {abierto && (
+        <div
+          className="fixed inset-0 z-[25] hidden bg-[rgba(31,17,71,0.28)] max-[900px]:block"
+          onClick={cerrar}
+          aria-hidden="true"
+        />
+      )}
+
       <main className="ml-[258px] flex min-h-screen flex-col max-[900px]:ml-0">
         <Topbar menuAbierto={abierto} onAlternarMenu={alternar} />
 

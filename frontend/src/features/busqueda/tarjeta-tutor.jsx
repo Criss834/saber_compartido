@@ -3,16 +3,42 @@ import { Avatar } from "../dashboard/avatar.jsx";
 import { PROGRAMA_ACADEMICO } from "../tutor/constantes.js";
 import { formatearNota } from "./formato.js";
 
-export const MarcaVerificado = () => (
+// Marca ✓ con tooltip "Verificado" (al pasar el ratón, al tocarla o con el teclado;
+// el title nativo no se ve en móvil).
+export const MarcaVerificado = ({ grande = false }) => (
   <span
-    className="inline-grid h-[15px] w-[15px] flex-none place-items-center rounded-full bg-status-success text-[10px] text-status-success-ink"
+    tabIndex={0}
     role="img"
-    aria-label="Tutor verificado"
-    title="Tutor verificado"
+    aria-label="Verificado"
+    className={`group relative ml-1.5 inline-grid flex-none cursor-default place-items-center rounded-full bg-status-success align-middle font-bold text-status-success-ink outline-none focus-visible:ring-2 focus-visible:ring-primary/40 ${
+      grande ? "h-[19px] w-[19px] text-[11px]" : "h-[15px] w-[15px] text-[10px]"
+    }`}
   >
-    ✓
+    <span aria-hidden="true">✓</span>
+    <span
+      aria-hidden="true"
+      className="pointer-events-none absolute bottom-[calc(100%+7px)] left-1/2 z-10 -translate-x-1/2 whitespace-nowrap rounded-[7px] bg-[#1f1147] px-2 py-[5px] text-[10px] font-semibold tracking-normal text-white opacity-0 shadow-[0_6px_16px_rgba(31,17,71,0.18)] transition-opacity duration-150 group-hover:opacity-100 group-focus:opacity-100"
+    >
+      Verificado
+    </span>
   </span>
 );
+
+// Nombre con la marca pegada a la última palabra: si el nombre se parte en
+// varias líneas, la marca nunca queda sola en una fila.
+export const NombreVerificado = ({ nombre = "", grande = false }) => {
+  const palabras = nombre.trim().split(/s+/);
+  const ultima = palabras.pop() ?? "";
+  return (
+    <>
+      {palabras.length > 0 && `${palabras.join(" ")} `}
+      <span className="whitespace-nowrap">
+        {ultima}
+        <MarcaVerificado grande={grande} />
+      </span>
+    </>
+  );
+};
 
 // Calificación de otros estudiantes (no la nota académica).
 export const Calificacion = ({ calificacion, className = "" }) =>
@@ -69,9 +95,8 @@ export const TarjetaTutor = ({ tutor, materiaId }) => {
           className="text-[13px]"
         />
         <div className="min-w-0 flex-1">
-          <h3 className="m-0 flex flex-wrap items-center gap-1.5 text-[12px] font-bold text-text">
-            <span className="min-w-0 break-words">{tutor.nombreCompleto}</span>
-            <MarcaVerificado />
+          <h3 className="m-0 break-words text-[12px] font-bold text-text">
+            <NombreVerificado nombre={tutor.nombreCompleto} />
           </h3>
           <p className="my-[5px] text-[10px] text-text-muted">
             {PROGRAMA_ACADEMICO}

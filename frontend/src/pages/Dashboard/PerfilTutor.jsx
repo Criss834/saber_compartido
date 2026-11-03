@@ -7,7 +7,10 @@ import {
   esCancelacion,
   obtenerPerfilTutor,
 } from "../../features/busqueda/api-busqueda.js";
-import { Calificacion, MarcaVerificado } from "../../features/busqueda/tarjeta-tutor.jsx";
+import {
+  Calificacion,
+  NombreVerificado,
+} from "../../features/busqueda/tarjeta-tutor.jsx";
 import { formatearNota } from "../../features/busqueda/formato.js";
 import { DisponibilidadPublica } from "../../features/disponibilidad/disponibilidad-publica.jsx";
 import { ModalSolicitar } from "../../features/solicitudes/modal-solicitar.jsx";
@@ -161,51 +164,51 @@ export const PerfilTutor = () => {
         {volver}
       </section>
 
-      <section className="mb-[17px] flex flex-wrap items-center gap-[18px] rounded-card border border-[#eeeaf5] bg-white p-[22px] shadow-card max-[650px]:flex-col max-[650px]:items-start">
+      {/* Escritorio: avatar | datos + estadísticas | botón. Móvil (≤650px): avatar
+          junto a badge, nombre y programa; debajo, estadísticas en dos columnas y
+          el botón a todo el ancho. */}
+      <section className="mb-[17px] grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-[18px] gap-y-[14px] rounded-card border border-[#eeeaf5] bg-white p-[22px] shadow-card [grid-template-areas:'avatar_datos_accion'_'avatar_cifras_accion'] max-[650px]:grid-cols-[auto_minmax(0,1fr)] max-[650px]:gap-x-[14px] max-[650px]:gap-y-4 max-[650px]:p-[18px] max-[650px]:[grid-template-areas:'avatar_datos'_'cifras_cifras'_'accion_accion']">
         <Avatar
           nombre={tutor.nombreCompleto}
-          size="size-[72px]"
-          redondeo="rounded-[20px]"
-          className="text-[19px]"
+          size="size-[72px] max-[650px]:size-14"
+          redondeo="rounded-[20px] max-[650px]:rounded-[16px]"
+          className="text-[19px] [grid-area:avatar] max-[650px]:text-[16px]"
         />
-        <div className="min-w-0 flex-1">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-status-success px-2.5 py-[5px] text-[9px] font-bold text-status-success-ink">
-            ✓ Tutor verificado
-          </span>
-          <h2 className="mb-1 mt-2 flex flex-wrap items-center gap-2 text-[19px] tracking-[-0.5px] text-text">
-            <span className="min-w-0 break-words">{tutor.nombreCompleto}</span>
-            <MarcaVerificado />
+        <div className="min-w-0 self-end [grid-area:datos] max-[650px]:self-center">
+          <h2 className="mb-1 mt-0 break-words text-[19px] leading-tight tracking-[-0.5px] text-text max-[650px]:text-[17px]">
+            <NombreVerificado nombre={tutor.nombreCompleto} grande />
           </h2>
           <p className="m-0 text-[11px] text-text-muted">{PROGRAMA_ACADEMICO}</p>
+        </div>
 
-          <div className="mt-[14px] flex flex-wrap gap-x-[26px] gap-y-3">
-            <div>
-              <strong className="block text-[18px] tracking-[-0.5px] text-text">
-                {calificacion.cantidad > 0
-                  ? `★ ${Number(calificacion.promedio).toFixed(1)}`
-                  : "—"}
-              </strong>
-              <small className="text-[10px] text-text-muted">
-                {calificacion.cantidad > 0
-                  ? `Calificación · ${calificacion.cantidad} ${
-                      calificacion.cantidad === 1 ? "reseña" : "reseñas"
-                    }`
-                  : "Aún sin calificaciones"}
-              </small>
-            </div>
-            <div>
-              <strong className="block text-[18px] tracking-[-0.5px] text-text">
-                {materias.length}
-              </strong>
-              <small className="text-[10px] text-text-muted">
-                {materias.length === 1
-                  ? "Materia verificada"
-                  : "Materias verificadas"}
-              </small>
-            </div>
+        <div className="flex flex-wrap gap-x-[26px] gap-y-3 self-start [grid-area:cifras] max-[650px]:grid max-[650px]:grid-cols-2 max-[650px]:gap-3 max-[650px]:border-t max-[650px]:border-[#f0edf6] max-[650px]:pt-4">
+          <div className="max-[650px]:rounded-[12px] max-[650px]:bg-[#faf8ff] max-[650px]:p-[10px_12px]">
+            <strong className="block text-[18px] tracking-[-0.5px] text-text">
+              {calificacion.cantidad > 0
+                ? `★ ${Number(calificacion.promedio).toFixed(1)}`
+                : "—"}
+            </strong>
+            <small className="text-[10px] text-text-muted">
+              {calificacion.cantidad > 0
+                ? `Calificación · ${calificacion.cantidad} ${
+                    calificacion.cantidad === 1 ? "reseña" : "reseñas"
+                  }`
+                : "Aún sin calificaciones"}
+            </small>
+          </div>
+          <div className="max-[650px]:rounded-[12px] max-[650px]:bg-[#faf8ff] max-[650px]:p-[10px_12px]">
+            <strong className="block text-[18px] tracking-[-0.5px] text-text">
+              {materias.length}
+            </strong>
+            <small className="text-[10px] text-text-muted">
+              {materias.length === 1
+                ? "Materia verificada"
+                : "Materias verificadas"}
+            </small>
           </div>
         </div>
-        <div className="max-[650px]:w-full">
+
+        <div className="[grid-area:accion] max-[650px]:w-full">
           <a
             href="#disponibilidad"
             onClick={irADisponibilidad}
